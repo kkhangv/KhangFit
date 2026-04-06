@@ -44,6 +44,20 @@
   let newExMuscle = $state('Other');
   let newExSets = $state([{ weight: 0, reps: 10, rpe: null, done: false }]);
 
+  // Elapsed timer
+  let startTime = $state(Date.now());
+  let elapsed = $state('0:00');
+
+  $effect(() => {
+    const interval = setInterval(() => {
+      const diff = Math.floor((Date.now() - startTime) / 1000);
+      const min = Math.floor(diff / 60);
+      const sec = diff % 60;
+      elapsed = `${min}:${sec.toString().padStart(2, '0')}`;
+    }, 1000);
+    return () => clearInterval(interval);
+  });
+
   // Debounced auto-save
   let autoSaveTimer = null;
 
@@ -72,6 +86,20 @@
   let hasAnyCompletion = $derived(completedSets > 0);
 
   // ── Helpers ────────────────────────────────────────────────────────────────
+
+  function muscleIcon(group) {
+    const g = (group || '').toLowerCase();
+    if (g.includes('chest')) return '\u{1FAC1}';
+    if (g.includes('back') || g.includes('lat')) return '\u{1F519}';
+    if (g.includes('shoulder') || g.includes('delt')) return '\u{1F4AA}';
+    if (g.includes('bicep') || g.includes('curl')) return '\u{1F4AA}';
+    if (g.includes('tricep')) return '\u{1F4AA}';
+    if (g.includes('ab') || g.includes('core')) return '\u{1F3AF}';
+    if (g.includes('quad') || g.includes('leg')) return '\u{1F9B5}';
+    if (g.includes('ham') || g.includes('glute')) return '\u{1F351}';
+    if (g.includes('calf') || g.includes('calv')) return '\u{1F9B6}';
+    return '\u{1F3CB}\uFE0F';
+  }
 
   function buildSets(exercise, deload) {
     const sets = exercise.sets ?? [];
@@ -296,6 +324,7 @@
     <p class="text-sm font-bold truncate" style="color: #F1F1F3;">{dayData?.name ?? 'Workout'}</p>
   </div>
   <div class="flex items-center gap-3 shrink-0">
+    <span class="text-xs font-mono font-bold" style="color: #9B9BA4;">&#9201; {elapsed}</span>
     <div style="width: 100px;">
       <ProgressBar value={progressPct} label="{completedSets}/{totalSets}" color="#3B82F6" />
     </div>
@@ -354,23 +383,40 @@
           class="w-full px-4 py-4 flex items-center gap-3 text-left"
           onclick={() => (expandedEx = isExpanded ? -1 : exIdx)}
         >
-          <!-- Status dot -->
-          <div
-            class="shrink-0 rounded-full"
-            style="
-              width: 10px; height: 10px;
-              background: {isSkipped ? '#F59E0B' : exSetsDone ? '#22C55E' : exDoneCount > 0 ? '#F97316' : isExpanded ? '#3B82F6' : '#2A2A2E'};
-            "
-          ></div>
+          <!-- Status dot + muscle icon -->
+          <div class="shrink-0 flex items-center gap-1.5">
+            <div
+              class="rounded-full"
+              style="
+                width: 10px; height: 10px;
+                background: {isSkipped ? '#F59E0B' : exSetsDone ? '#22C55E' : exDoneCount > 0 ? '#F97316' : isExpanded ? '#3B82F6' : '#2A2A2E'};
+              "
+            ></div>
+            <span style="font-size: 16px; line-height: 1;">{muscleIcon(exercise.muscleGroup)}</span>
+          </div>
 
           <div class="flex-1 min-w-0">
-            <div class="flex items-center gap-2">
+            <div class="flex items-center gap-2 flex-wrap">
               <p class="text-sm font-bold truncate" style="color: #F1F1F3;">{exercise.name}</p>
               {#if isSkipped}
                 <span class="text-xs font-bold px-2 py-0.5 rounded-full shrink-0" style="background: #F59E0B22; color: #F59E0B; border: 1px solid #F59E0B44;">Skipped</span>
               {/if}
+              {#if exercise.technique === 'superset' || exercise.supersetWith}
+                <span style="background: #7C3AED22; color: #A78BFA; border: 1px solid #7C3AED44;" class="text-xs font-bold px-2 py-0.5 rounded-full">&#9889; Superset</span>
+              {/if}
+              {#if exercise.technique === 'dropset'}
+                <span style="background: #F9731622; color: #FB923C; border: 1px solid #F9731644;" class="text-xs font-bold px-2 py-0.5 rounded-full">&#11015; Drop Set</span>
+              {/if}
+              {#if exercise.technique === 'restpause'}
+                <span style="background: #EF444422; color: #F87171; border: 1px solid #EF444444;" class="text-xs font-bold px-2 py-0.5 rounded-full">&#9208; Rest-Pause</span>
+              {/if}
             </div>
-            <p class="text-xs" style="color: #9B9BA4;">
+            {#if exercise.equipment}
+              <span class="text-xs px-2 py-0.5 rounded-full inline-block mt-0.5" style="background: #2A2A2E; color: #6B6B75;">
+                &#128295; {exercise.equipment}
+              </span>
+            {/if}
+            <p class="text-xs mt-0.5" style="color: #9B9BA4;">
               {sets.length} sets
               {#if exercise.repRange}· {exercise.repRange} reps{/if}
               {#if exercise.restSeconds}· {exercise.restSeconds}s rest{/if}
@@ -398,9 +444,14 @@
             {/if}
 
             {#if !isSkipped}
-              <span class="text-xs font-semibold" style="color: {exSetsDone ? '#22C55E' : '#9B9BA4'};">
-                {exDoneCount}/{exSetsCount}
-              </span>
+              <div class="flex gap-1">
+                {#each Array(exSetsCount) as _, i}
+                  <div
+                    class="rounded-full"
+                    style="width: 8px; height: 8px; background: {i < exDoneCount ? '#22C55E' : '#2A2A2E'}; transition: background 0.3s;"
+                  ></div>
+                {/each}
+              </div>
             {/if}
             <svg
               width="16" height="16" viewBox="0 0 24 24" fill="none"
@@ -415,6 +466,13 @@
         <!-- Expanded content (hidden when skipped) -->
         {#if isExpanded && !isSkipped}
           <div class="px-3 pb-4 flex flex-col gap-2 border-t" style="border-color: #2A2A2E;">
+            <!-- Exercise cue -->
+            {#if exercise.cue}
+              <div class="mt-3 px-3 py-2.5 rounded-xl" style="background: rgba(59,130,246,0.06); border-left: 3px solid #3B82F6;">
+                <p class="text-xs font-medium" style="color: #93C5FD;">&#128161; {exercise.cue}</p>
+              </div>
+            {/if}
+
             <!-- Recommendation hint -->
             {#if rec}
               <div class="mt-3 px-3 py-2 rounded-xl flex items-start gap-2" style="background: rgba(59,130,246,0.08); border: 1px solid rgba(59,130,246,0.2);">
@@ -493,9 +551,13 @@
               />
               <button
                 onclick={() => toggleCustomSetDone(ceIdx, si)}
-                class="ml-auto rounded-lg px-3 py-1.5 text-xs font-bold"
-                style="min-height: 44px; background: {cset.done ? '#22C55E' : '#2A2A2E'}; color: {cset.done ? '#fff' : '#9B9BA4'};"
-              >{cset.done ? '✓' : 'Done'}</button>
+                class="ml-auto rounded-full flex items-center justify-center shrink-0 transition-all duration-200"
+                style="width: 48px; height: 48px; background: {cset.done ? '#22C55E' : '#2A2A2E'}; color: {cset.done ? '#fff' : '#9B9BA4'}; {cset.done ? 'animation: pulse-done 0.3s ease-out;' : ''}"
+              >
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="20 6 9 17 4 12"/>
+                </svg>
+              </button>
             </div>
           {/each}
         </div>
@@ -506,11 +568,11 @@
     {#if !showAddForm}
       <button
         onclick={() => (showAddForm = true)}
-        class="w-full py-4 rounded-2xl text-sm font-bold flex items-center justify-center gap-2"
-        style="background: #161618; border: 2px dashed #2A2A2E; color: #3B82F6; min-height: 56px;"
+        class="w-full rounded-2xl py-4 text-sm font-bold flex items-center justify-center gap-2 transition-all active:scale-98"
+        style="background: #161618; border: 2px dashed #3B82F644; color: #3B82F6; min-height: 56px;"
       >
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-          <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/>
         </svg>
         Add Exercise
       </button>
@@ -605,13 +667,17 @@
 
 <!-- Floating Finish Workout button -->
 {#if hasAnyCompletion && !showFeedback && !showSummary}
-  <div class="fixed bottom-6 left-0 right-0 z-20 flex justify-center px-4" style="pointer-events: none;">
+  <div class="fixed bottom-6 left-0 right-0 flex justify-center z-20 px-4">
     <button
       onclick={handleFinishWorkout}
-      class="rounded-2xl px-8 py-4 font-bold text-sm shadow-lg active:scale-95 transition-all duration-200"
-      style="background: #22C55E; color: #fff; min-height: 56px; pointer-events: auto; max-width: 600px; width: 100%; box-shadow: 0 4px 24px rgba(34,197,94,0.3);"
+      class="rounded-2xl px-8 py-4 text-base font-bold shadow-2xl transition-all active:scale-95 flex items-center gap-2"
+      style="background: #22C55E; color: #fff; box-shadow: 0 4px 20px rgba(34,197,94,0.4); min-height: 56px; max-width: 600px; width: 100%;"
     >
-      Finish Workout
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="shrink-0">
+        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+        <polyline points="22 4 12 14.01 9 11.01"/>
+      </svg>
+      <span class="flex-1 text-center">Finish Workout &middot; {completedSets}/{totalSets} sets</span>
     </button>
   </div>
 {/if}
@@ -686,30 +752,73 @@
 
 <!-- Summary overlay -->
 {#if showSummary}
+  {@const totalVolume = exercises.reduce((acc, ex, ei) => {
+    if (skippedExercises[ei]) return acc;
+    return acc + Object.values(setStates[ei] ?? {}).reduce((a, s) => {
+      if (!s.done) return a;
+      const w = typeof s.weight === 'number' ? s.weight : 0;
+      return a + (w * (s.reps || 0));
+    }, 0);
+  }, 0) + customExercises.reduce((acc, ce) => acc + ce.sets.reduce((a, s) => s.done ? a + ((typeof s.weight === 'number' ? s.weight : 0) * (s.reps || 0)) : a, 0), 0)}
+  {@const completedExerciseNames = [
+    ...exercises.map((ex, ei) => ({ name: ex.name, ei })).filter(({ ei }) => !skippedExercises[ei] && Object.values(setStates[ei] ?? {}).some(s => s.done)).map(({ name, ei }) => ({ name, done: Object.values(setStates[ei] ?? {}).filter(s => s.done).length })),
+    ...customExercises.filter(ce => ce.sets.some(s => s.done)).map(ce => ({ name: ce.name, done: ce.sets.filter(s => s.done).length }))
+  ]}
   <div class="fixed inset-0 z-50 flex items-center justify-center px-4" style="background: rgba(0,0,0,0.85);">
-    <div class="w-full rounded-3xl p-8 text-center" style="background: #161618; border: 1px solid #22C55E; max-width: 400px;">
-      <!-- Trophy -->
-      <div
-        class="flex items-center justify-center rounded-full mx-auto mb-5"
-        style="width: 72px; height: 72px; background: rgba(34,197,94,0.15);"
-      >
-        <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#22C55E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <polyline points="20 6 9 17 4 12"/>
-        </svg>
+    <div class="w-full rounded-3xl p-8 text-center" style="background: #161618; border: 1px solid #22C55E; max-width: 400px; max-height: 90vh; overflow-y: auto;">
+      <!-- Celebration -->
+      <div class="text-5xl mb-3">&#127881;</div>
+      <h2 class="text-2xl font-black mb-1" style="color: #F1F1F3;">Workout Complete!</h2>
+      <p class="text-sm mb-5" style="color: #9B9BA4;">{dayData?.name}</p>
+
+      <!-- Stats row -->
+      <div class="flex justify-center gap-6 mb-5">
+        <div class="text-center">
+          <p class="text-2xl font-black" style="color: #22C55E;">{completedSets}</p>
+          <p class="text-xs" style="color: #9B9BA4;">Sets</p>
+        </div>
+        <div class="text-center">
+          <p class="text-2xl font-black" style="color: #3B82F6;">{totalVolume > 0 ? (totalVolume >= 1000 ? `${(totalVolume / 1000).toFixed(1)}k` : totalVolume) : '—'}</p>
+          <p class="text-xs" style="color: #9B9BA4;">Volume (lbs)</p>
+        </div>
+        <div class="text-center">
+          <p class="text-2xl font-black" style="color: #A78BFA;">{elapsed}</p>
+          <p class="text-xs" style="color: #9B9BA4;">Duration</p>
+        </div>
       </div>
-      <h2 class="text-2xl font-black mb-1" style="color: #F1F1F3;">Workout Done!</h2>
-      <p class="text-sm mb-2" style="color: #9B9BA4;">{dayData?.name}</p>
-      <p class="text-3xl font-black mb-6" style="color: #22C55E;">{completedSets} sets</p>
+
+      <!-- Completed exercises list -->
+      {#if completedExerciseNames.length > 0}
+        <div class="rounded-xl p-3 mb-5 text-left" style="background: #0A0A0B; border: 1px solid #2A2A2E;">
+          {#each completedExerciseNames as cex}
+            <div class="flex items-center justify-between py-1.5">
+              <span class="text-xs font-medium" style="color: #F1F1F3;">{cex.name}</span>
+              <span class="text-xs font-bold" style="color: #22C55E;">{cex.done} sets</span>
+            </div>
+          {/each}
+        </div>
+      {/if}
 
       <div class="flex flex-col gap-3">
         <button
           onclick={exitWorkout}
-          class="w-full py-3.5 rounded-xl font-bold text-sm"
-          style="background: #3B82F6; color: #fff;"
+          class="w-full py-4 rounded-xl font-bold text-sm flex items-center justify-center gap-2 active:scale-95 transition-all"
+          style="background: #3B82F6; color: #fff; min-height: 48px;"
         >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>
+          </svg>
           Back to Dashboard
         </button>
       </div>
     </div>
   </div>
 {/if}
+
+<style>
+  @keyframes -global-pulse-done {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.15); }
+    100% { transform: scale(1); }
+  }
+</style>

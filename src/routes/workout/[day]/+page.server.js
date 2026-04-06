@@ -1,26 +1,54 @@
 import { requireAuth } from '$lib/auth';
-import { getUserConfig, getWorkoutHistory, getWorkout } from '$lib/storage';
+import { getUserConfig, getWorkoutHistory, getWorkout, getUserProgram } from '$lib/storage';
 import { getCurrentWeek } from '$lib/weekCalc';
 import { getDay } from '$lib/workoutData';
 import { getOverloadRecommendation } from '$lib/overload';
+import { kv } from '$lib/kv';
+import { getProgramDays, getExercise } from '$lib/programData';
 
 export async function load({ cookies, params }) {
   const username = requireAuth(cookies);
   const dayNum = parseInt(params.day);
 
-  if (isNaN(dayNum) || dayNum < 1 || dayNum > 4) {
+  if (isNaN(dayNum) || dayNum < 1) {
     return { error: 'Invalid day.' };
   }
 
   const dayId = 'day' + dayNum;
 
-  const [config, history] = await Promise.all([
+  const [config, history, userProgram] = await Promise.all([
     getUserConfig(username),
-    getWorkoutHistory(username)
+    getWorkoutHistory(username),
+    getUserProgram(username)
   ]);
 
   const weekInfo = getCurrentWeek(config?.startDate, config?.weekOverride);
-  const dayData = getDay(dayId);
+
+  // Try loading day data from the user's selected program in DB
+  const programId = userProgram?.programId || 'chest-focus-4day';
+  const programDays = await getProgramDays(kv, programId);
+  const dayIndex = dayNum - 1;
+  let dayData = programDays?.[dayIndex] || null;
+
+  // If DB has exercise references, load full exercise data
+  if (dayData?.exercises) {
+    const enriched = await Promise.all(
+      dayData.exercises.map(async (ex) => {
+        // If exercise only has an id (reference), load full data from DB
+        if (ex.id && !ex.name) {
+          const full = await getExercise(kv, ex.id);
+          return full ? { ...full, ...ex } : ex;
+        }
+        return ex;
+      })
+    );
+    dayData = { ...dayData, exercises: enriched };
+  }
+
+  // Fall back to hardcoded data if DB returned nothing
+  if (!dayData) {
+    dayData = getDay(dayId);
+  }
 
   const today = new Date().toISOString().split('T')[0];
 

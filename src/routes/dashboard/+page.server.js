@@ -1,8 +1,10 @@
 import { redirect, fail } from '@sveltejs/kit';
 import { requireAuth, getSession } from '$lib/auth';
-import { getUserConfig, updateUserConfig, getWorkoutHistory, getLast6Weeks, getLatestStats, getUser } from '$lib/storage';
+import { getUserConfig, updateUserConfig, getWorkoutHistory, getLast6Weeks, getLatestStats, getUser, getUserProgram, setUserProgram } from '$lib/storage';
 import { getCurrentWeek, getTodayDay } from '$lib/weekCalc';
 import { workoutProgram } from '$lib/workoutData';
+import { kv } from '$lib/kv';
+import { getAllPrograms, getProgram, getProgramDays } from '$lib/programData';
 
 // Day-of-week mapping: which calendar days each training day falls on
 // Day 1 = Monday (1), Day 2 = Tuesday (2), Day 3 = Thursday (4), Day 4 = Saturday (6)
@@ -17,7 +19,7 @@ function getWeekStart(date = new Date()) {
   return d;
 }
 
-function getDayStatuses(workoutHistory, weekInfo) {
+function getDayStatuses(workoutHistory, weekInfo, days, dayDowMap) {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   const weekStart = getWeekStart(today);
@@ -32,16 +34,14 @@ function getDayStatuses(workoutHistory, weekInfo) {
     }
   }
 
-  const todayDow = today.getDay(); // 0=Sun
-
   const statuses = {};
-  for (const day of workoutProgram) {
+  for (const day of days) {
     const dayNum = parseInt(day.id.replace('day', ''));
-    const targetDow = DAY_DOW[dayNum];
+    const targetDow = dayDowMap[dayNum];
 
     if (thisWeekDates.has(day.id)) {
       statuses[day.id] = 'done';
-    } else {
+    } else if (targetDow != null) {
       // Compute the target date for this day in the current week
       const targetDate = new Date(weekStart);
       targetDate.setDate(weekStart.getDate() + (targetDow === 0 ? 6 : targetDow - 1));
@@ -53,6 +53,8 @@ function getDayStatuses(workoutHistory, weekInfo) {
       } else {
         statuses[day.id] = 'upcoming';
       }
+    } else {
+      statuses[day.id] = 'upcoming';
     }
   }
 
@@ -62,16 +64,35 @@ function getDayStatuses(workoutHistory, weekInfo) {
 export async function load({ cookies }) {
   const username = requireAuth(cookies);
 
-  const [user, config, workoutHistory, last6Weeks, latestStats] = await Promise.all([
+  const [user, config, workoutHistory, last6Weeks, latestStats, userProgram, allPrograms] = await Promise.all([
     getUser(username),
     getUserConfig(username),
     getWorkoutHistory(username),
     getLast6Weeks(username),
-    getLatestStats(username)
+    getLatestStats(username),
+    getUserProgram(username),
+    getAllPrograms(kv)
   ]);
 
+  const programId = userProgram?.programId || 'chest-focus-4day';
+  const [program, programDays] = await Promise.all([
+    getProgram(kv, programId),
+    getProgramDays(kv, programId)
+  ]);
+
+  // Use DB program days if available, else fall back to hardcoded workoutProgram
+  const days = (programDays && programDays.length > 0) ? programDays : workoutProgram;
+
+  // Build day-of-week mapping from program metadata or fall back to hardcoded
+  const dayDowMap = {};
+  if (program?.daysPerWeek && Array.isArray(program.daysPerWeek)) {
+    program.daysPerWeek.forEach((dow, i) => { dayDowMap[i + 1] = dow; });
+  } else {
+    Object.assign(dayDowMap, DAY_DOW);
+  }
+
   const weekInfo = getCurrentWeek(config?.startDate, config?.weekOverride);
-  const dayStatuses = getDayStatuses(workoutHistory || [], weekInfo);
+  const dayStatuses = getDayStatuses(workoutHistory || [], weekInfo, days, dayDowMap);
 
   // Volume stats for this week
   const today = new Date();
@@ -84,13 +105,10 @@ export async function load({ cookies }) {
   const sessionsCompleted = thisWeekSessions.length;
 
   // Next workout day
-  const todayDow = today.getDay();
   let nextDay = null;
-  const dayOrder = [1, 2, 3, 4];
-  for (const dayNum of dayOrder) {
-    const did = `day${dayNum}`;
-    if (dayStatuses[did] === 'today' || dayStatuses[did] === 'upcoming') {
-      nextDay = workoutProgram.find(d => d.id === did);
+  for (const day of days) {
+    if (dayStatuses[day.id] === 'today' || dayStatuses[day.id] === 'upcoming') {
+      nextDay = day;
       break;
     }
   }
@@ -106,7 +124,10 @@ export async function load({ cookies }) {
     dayStatuses,
     sessionsCompleted,
     nextDay,
-    days: workoutProgram
+    days,
+    programName: program?.name || 'Default Program',
+    programId,
+    allPrograms: allPrograms || []
   };
 }
 
@@ -125,6 +146,17 @@ export const actions = {
   resetWeek: async ({ cookies }) => {
     const username = requireAuth(cookies);
     await updateUserConfig(username, { weekOverride: null });
+    return { success: true };
+  },
+
+  switchProgram: async ({ cookies, request }) => {
+    const username = requireAuth(cookies);
+    const data = await request.formData();
+    const programId = data.get('programId')?.toString();
+    if (!programId) {
+      return fail(400, { error: 'No program selected.' });
+    }
+    await setUserProgram(username, programId);
     return { success: true };
   }
 };

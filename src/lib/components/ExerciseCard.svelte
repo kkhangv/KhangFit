@@ -1,5 +1,6 @@
 <script>
   import SetRow from './SetRow.svelte';
+  import InfoTip from './InfoTip.svelte';
 
   let {
     exercise,
@@ -11,15 +12,28 @@
     onSetComplete,
     onSetUndo,
     onRestStart,
+    onSkip,
     currentSetIndex = -1
   } = $props();
 
   let tipOpen = $state(false);
+  let skipped = $state(false);
 
   let sets = $derived(exercise.sets ?? []);
 
   let doneSets = $derived(sets.filter((s) => s.done).length);
   let allDone = $derived(doneSets === sets.length && sets.length > 0);
+
+  function handleSkip(e) {
+    e.stopPropagation();
+    skipped = true;
+    onSkip?.(exercise.id);
+  }
+
+  function handleUndoSkip(e) {
+    e.stopPropagation();
+    skipped = false;
+  }
 
   function getLastWeekActual(setIndex) {
     if (!prevWorkoutData || !prevWorkoutData.sets) return null;
@@ -57,8 +71,9 @@
   class="rounded-2xl overflow-hidden transition-all duration-300"
   style="
     background: #161618;
-    border: 1px solid {allDone ? '#22C55E' : '#2A2A2E'};
-    transition: border-color 0.4s ease;
+    border: 1px solid {skipped ? '#F59E0B' : allDone ? '#22C55E' : '#2A2A2E'};
+    opacity: {skipped ? 0.6 : 1};
+    transition: border-color 0.4s ease, opacity 0.3s ease;
   "
 >
   <!-- Header (always visible) -->
@@ -84,7 +99,12 @@
           style="background: #8B5CF622; color: #8B5CF6; border: 1px solid #8B5CF644;"
         >SS</span>
       {/if}
-      {#if allDone}
+      {#if skipped}
+        <span
+          class="text-xs font-bold px-2 py-0.5 rounded-full shrink-0"
+          style="background: #F59E0B22; color: #F59E0B; border: 1px solid #F59E0B44;"
+        >Skipped</span>
+      {:else if allDone}
         <span
           class="text-xs font-bold px-2 py-0.5 rounded-full shrink-0"
           style="background: #22C55E22; color: #22C55E; border: 1px solid #22C55E44;"
@@ -98,7 +118,23 @@
       {/if}
     </div>
 
+    <!-- Skip / Undo Skip button -->
+    {#if skipped}
+      <button
+        onclick={handleUndoSkip}
+        class="text-xs font-semibold px-2.5 py-1 rounded-lg shrink-0"
+        style="background: #F59E0B22; color: #F59E0B; min-height: 44px; display: flex; align-items: center;"
+      >Undo</button>
+    {:else}
+      <button
+        onclick={handleSkip}
+        class="text-xs font-semibold px-2.5 py-1 rounded-lg shrink-0"
+        style="background: #2A2A2E; color: #9B9BA4; min-height: 44px; display: flex; align-items: center;"
+      >Skip</button>
+    {/if}
+
     <!-- Completion dots -->
+    {#if !skipped}
     <div class="flex items-center gap-1 shrink-0">
       {#each sets as s, i}
         <span
@@ -111,6 +147,7 @@
         ></span>
       {/each}
     </div>
+    {/if}
 
     <!-- Chevron -->
     <svg
@@ -151,15 +188,22 @@
         </div>
       {/if}
 
-      <!-- Science tip (collapsible) -->
-      {#if exercise.tip}
+      <!-- Science tip (collapsible) with research citation -->
+      {#if exercise.tip || exercise.scienceTip}
         <div class="rounded-xl overflow-hidden" style="border: 1px solid #2A2A2E;">
           <button
             onclick={() => (tipOpen = !tipOpen)}
             class="w-full flex items-center justify-between px-3 py-2.5 text-left"
             style="background: #0A0A0B;"
           >
-            <span class="text-xs font-semibold" style="color: #6B6B75;">Science tip</span>
+            <span class="flex items-center gap-2">
+              <span class="text-xs font-semibold" style="color: #6B6B75;">Research insight</span>
+              <InfoTip
+                text={exercise.scienceTip || exercise.tip}
+                citation={exercise.scienceCitation || null}
+                formula={exercise.scienceFormula || null}
+              />
+            </span>
             <svg
               width="14"
               height="14"
@@ -176,7 +220,10 @@
           </button>
           {#if tipOpen}
             <div class="px-3 py-2.5" style="background: #0A0A0B; border-top: 1px solid #2A2A2E;">
-              <p class="text-sm leading-relaxed" style="color: #9B9BA4;">{exercise.tip}</p>
+              <p class="text-sm leading-relaxed" style="color: #9B9BA4;">{exercise.tip || exercise.scienceTip}</p>
+              {#if exercise.scienceCitation}
+                <p class="text-xs mt-2" style="color: #6B6B75;">{exercise.scienceCitation}</p>
+              {/if}
             </div>
           {/if}
         </div>

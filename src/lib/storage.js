@@ -221,6 +221,28 @@ export async function getWeeklyProgress(username, weekNum) {
   return typeof raw === 'string' ? JSON.parse(raw) : raw;
 }
 
+// ─── Program selection ──────────────────────────────────────────────────────
+
+/**
+ * Save the selected program for a user.
+ * @param {string} username
+ * @param {string} programId
+ */
+export async function setUserProgram(username, programId) {
+  await kv.set(`user:${username}:program`, JSON.stringify({ programId, startedAt: new Date().toISOString() }));
+}
+
+/**
+ * Fetch the user's selected program.
+ * @param {string} username
+ * @returns {Promise<{ programId: string, startedAt: string } | null>}
+ */
+export async function getUserProgram(username) {
+  const data = await kv.get(`user:${username}:program`);
+  if (!data) return null;
+  return typeof data === 'string' ? JSON.parse(data) : data;
+}
+
 /**
  * Return the last 6 weekly progress objects for a user, ordered by week number
  * descending (most recent first). Skips weeks with no data.

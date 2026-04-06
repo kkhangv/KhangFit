@@ -1,6 +1,8 @@
 import { redirect, fail } from '@sveltejs/kit';
-import { getUser, createUser, updateUserConfig, saveStats } from '$lib/storage';
+import { getUser, createUser, updateUserConfig, saveStats, setUserProgram } from '$lib/storage';
 import { hashPassword, createSession } from '$lib/auth';
+import { kv } from '$lib/kv';
+import { getAllPrograms } from '$lib/programData';
 
 export async function load({ cookies }) {
   // Already logged in → skip onboarding
@@ -9,7 +11,9 @@ export async function load({ cookies }) {
   if (userId) {
     redirect(302, '/dashboard');
   }
-  return {};
+
+  const programs = await getAllPrograms(kv);
+  return { programs: programs || [] };
 }
 
 export const actions = {
@@ -63,6 +67,10 @@ export const actions = {
 
     // Create user
     await createUser(username, { name, passwordHash, createdAt: new Date().toISOString() });
+
+    // Save selected program
+    const programId = data.get('programId')?.toString() || 'chest-focus-4day';
+    await setUserProgram(username, programId);
 
     // Save program config
     await updateUserConfig(username, {

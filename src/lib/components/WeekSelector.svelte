@@ -1,4 +1,6 @@
 <script>
+  import InfoTip from './InfoTip.svelte';
+
   let {
     currentWeek = 1,
     autoWeek = 1,
@@ -50,6 +52,10 @@
       >
         DELOAD WEEK
       </span>
+      <InfoTip
+        text="Deload weeks reduce weight to 60% and volume to 2 sets per exercise. This restores mTOR signaling responsiveness and prevents overreaching."
+        citation="Ogasawara et al., 2013 — mTOR resensitization after ~1 week rest; Schoenfeld et al., 2024"
+      />
     {:else}
       <span class="text-base font-bold" style="color: #F1F1F3;">
         Week {displayWeek} <span style="color: #6B6B75;">of 4</span>

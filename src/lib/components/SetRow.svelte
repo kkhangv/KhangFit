@@ -1,4 +1,6 @@
 <script>
+  import InfoTip from './InfoTip.svelte';
+
   let {
     set,
     exerciseId,
@@ -110,7 +112,13 @@
             </span>
           {/if}
           {#if recommendation}
-            <span class="text-xs font-medium" style="color: #3B82F6;">{recommendation}</span>
+            <span class="flex items-center gap-1">
+              <span class="text-xs font-medium" style="color: #3B82F6;">{recommendation}</span>
+              <InfoTip
+                text="Based on double progression: when you hit the top of your rep range on all working sets, add the smallest weight increment."
+                citation="Schoenfeld et al., 2017; NSCA Guidelines"
+              />
+            </span>
           {/if}
           <div class="flex items-center rounded-lg overflow-hidden" style="background: #2A2A2E; height: 44px;">
             <button

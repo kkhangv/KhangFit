@@ -3,7 +3,9 @@
 
   let { data } = $props();
 
-  let { name, weekInfo, last6Weeks, latestStats, dayStatuses, sessionsCompleted, nextDay, days, config } = $derived(data);
+  let { name, weekInfo, last6Weeks, latestStats, dayStatuses, sessionsCompleted, nextDay, days, config, programName, programId, allPrograms } = $derived(data);
+
+  let showProgramPicker = $state(false);
 
   const dayColors = {
     today:    { bg: 'rgba(59,130,246,0.12)', border: '#3B82F6',  label: 'TODAY',    labelColor: '#3B82F6'  },
@@ -43,6 +45,16 @@
       <p class="text-sm mt-0.5" style="color: #9B9BA4;">
         {weekInfo?.isDeload ? 'Deload week — recover hard.' : 'Time to make progress.'}
       </p>
+      <div class="flex items-center gap-2 mt-1">
+        <span class="text-xs font-medium" style="color: #6B6B75;">{programName}</span>
+        <button
+          onclick={() => (showProgramPicker = !showProgramPicker)}
+          class="text-xs font-semibold"
+          style="color: #3B82F6;"
+        >
+          Switch
+        </button>
+      </div>
     </div>
     <div class="flex flex-col items-end gap-1">
       <span
@@ -99,6 +111,60 @@
       <p class="text-xs mt-3" style="color: #6B6B75;">
         {config?.weekOverride ? 'Manual override active.' : 'Auto-calculating from start date.'}
       </p>
+    </div>
+  {/if}
+
+  <!-- Program picker -->
+  {#if showProgramPicker}
+    <div class="mb-5 rounded-xl p-4" style="background: #161618; border: 1px solid #2A2A2E;">
+      <div class="flex items-center justify-between mb-3">
+        <p class="text-xs font-semibold" style="color: #9B9BA4;">SWITCH PROGRAM</p>
+        <button onclick={() => (showProgramPicker = false)} class="text-xs" style="color: #6B6B75;">Close</button>
+      </div>
+      {#if allPrograms.length === 0}
+        <p class="text-sm" style="color: #F97316;">Programs not yet loaded. Please ask an admin to seed the database.</p>
+      {:else}
+        <div class="flex flex-col gap-2" style="max-height: 300px; overflow-y: auto;">
+          {#each allPrograms as prog}
+            {@const isCurrent = programId === prog.id}
+            <form method="POST" action="?/switchProgram" use:enhance={() => {
+              return async ({ update }) => {
+                await update();
+                showProgramPicker = false;
+              };
+            }}>
+              <input type="hidden" name="programId" value={prog.id} />
+              <button
+                type="submit"
+                disabled={isCurrent}
+                class="w-full rounded-xl p-3 text-left transition-all duration-200"
+                style="
+                  background: {isCurrent ? 'rgba(59,130,246,0.1)' : '#0A0A0B'};
+                  border: 1.5px solid {isCurrent ? '#3B82F6' : '#2A2A2E'};
+                  opacity: {isCurrent ? 0.8 : 1};
+                "
+              >
+                <div class="flex items-center justify-between gap-2">
+                  <div>
+                    <p class="text-sm font-bold" style="color: #F1F1F3;">{prog.name}</p>
+                    <div class="flex gap-1.5 mt-1">
+                      {#if prog.frequency}
+                        <span class="text-xs px-1.5 py-0.5 rounded-full" style="background: rgba(59,130,246,0.15); color: #3B82F6;">{prog.frequency}x/week</span>
+                      {/if}
+                      {#if prog.goal}
+                        <span class="text-xs px-1.5 py-0.5 rounded-full" style="background: rgba(34,197,94,0.15); color: #22C55E;">{prog.goal.split(' — ')[0]}</span>
+                      {/if}
+                    </div>
+                  </div>
+                  {#if isCurrent}
+                    <span class="text-xs font-bold px-2 py-1 rounded-full" style="background: rgba(59,130,246,0.15); color: #3B82F6;">Current</span>
+                  {/if}
+                </div>
+              </button>
+            </form>
+          {/each}
+        </div>
+      {/if}
     </div>
   {/if}
 

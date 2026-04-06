@@ -1,10 +1,10 @@
 <script>
   import { enhance } from '$app/forms';
 
-  let { form } = $props();
+  let { data, form } = $props();
 
   let step = $state(1);
-  const totalSteps = 3;
+  const totalSteps = 4;
 
   // Step 1
   let name = $state('');
@@ -22,6 +22,10 @@
   // Step 3
   const todayStr = new Date().toISOString().split('T')[0];
   let startDate = $state(todayStr);
+
+  // Step 4 — Program selection
+  let selectedProgramId = $state('chest-focus-4day');
+  let programs = $derived(data.programs || []);
 
   let loading = $state(false);
   let localError = $state('');
@@ -47,7 +51,7 @@
     step--;
   }
 
-  const stepLabels = ['Profile', 'Stats', 'Start'];
+  const stepLabels = ['Profile', 'Stats', 'Start', 'Program'];
 </script>
 
 <svelte:head>
@@ -132,6 +136,10 @@
         <input type="hidden" name="maxBench" value={maxBench} />
         <input type="hidden" name="maxOHP" value={maxOHP} />
         <input type="hidden" name="notes" value={notes} />
+      {/if}
+      {#if step > 3}
+        <input type="hidden" name="startDate" value={startDate} />
+        <input type="hidden" name="programId" value={selectedProgramId} />
       {/if}
 
       <div class="rounded-2xl p-6" style="background: #161618; border: 1px solid #2A2A2E;">
@@ -313,6 +321,73 @@
               {/each}
             </div>
           </div>
+        {/if}
+
+        <!-- STEP 4: Choose Your Program -->
+        {#if step === 4}
+          <h2 class="text-lg font-bold mb-1" style="color: #F1F1F3;">Choose Your Program</h2>
+          <p class="text-sm mb-5" style="color: #9B9BA4;">
+            Pick a training program that matches your goals. You can switch anytime from your dashboard.
+          </p>
+
+          {#if programs.length === 0}
+            <div class="rounded-xl p-4 text-center" style="background: rgba(249,115,22,0.1); border: 1px solid rgba(249,115,22,0.3);">
+              <p class="text-sm font-medium" style="color: #F97316;">Programs not yet loaded. Please ask an admin to seed the database.</p>
+              <p class="text-xs mt-2" style="color: #9B9BA4;">A default program will be assigned automatically.</p>
+            </div>
+          {:else}
+            <div class="flex flex-col gap-3" style="max-height: 340px; overflow-y: auto;">
+              {#each programs as program}
+                {@const isSelected = selectedProgramId === program.id}
+                <button
+                  type="button"
+                  onclick={() => (selectedProgramId = program.id)}
+                  class="w-full rounded-xl p-4 text-left transition-all duration-200"
+                  style="
+                    background: {isSelected ? 'rgba(59,130,246,0.1)' : '#0A0A0B'};
+                    border: 1.5px solid {isSelected ? '#3B82F6' : '#2A2A2E'};
+                  "
+                >
+                  <div class="flex items-start justify-between gap-2 mb-2">
+                    <p class="text-sm font-bold" style="color: #F1F1F3;">{program.name}</p>
+                    <div
+                      class="flex items-center justify-center rounded-full shrink-0 transition-all"
+                      style="
+                        width: 20px; height: 20px;
+                        border: 2px solid {isSelected ? '#3B82F6' : '#2A2A2E'};
+                        background: {isSelected ? '#3B82F6' : 'transparent'};
+                      "
+                    >
+                      {#if isSelected}
+                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                          <polyline points="20 6 9 17 4 12"></polyline>
+                        </svg>
+                      {/if}
+                    </div>
+                  </div>
+                  <p class="text-xs mb-2" style="color: #9B9BA4;">{program.description?.slice(0, 120)}{(program.description?.length ?? 0) > 120 ? '...' : ''}</p>
+                  <div class="flex flex-wrap gap-1.5">
+                    {#if program.frequency}
+                      <span class="text-xs px-2 py-0.5 rounded-full" style="background: rgba(59,130,246,0.15); color: #3B82F6;">{program.frequency}x/week</span>
+                    {/if}
+                    {#if program.goal}
+                      <span class="text-xs px-2 py-0.5 rounded-full" style="background: rgba(34,197,94,0.15); color: #22C55E;">{program.goal.split(' — ')[0]}</span>
+                    {/if}
+                    {#if program.difficulty}
+                      <span class="text-xs px-2 py-0.5 rounded-full" style="background: rgba(249,115,22,0.15); color: #F97316;">{program.difficulty}</span>
+                    {/if}
+                  </div>
+                  {#if program.tags?.length}
+                    <div class="flex flex-wrap gap-1 mt-2">
+                      {#each program.tags.slice(0, 4) as tag}
+                        <span class="text-xs px-1.5 py-0.5 rounded" style="background: #2A2A2E; color: #6B6B75;">{tag}</span>
+                      {/each}
+                    </div>
+                  {/if}
+                </button>
+              {/each}
+            </div>
+          {/if}
         {/if}
 
       </div>

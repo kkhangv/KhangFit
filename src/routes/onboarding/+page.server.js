@@ -50,7 +50,7 @@ export const actions = {
     const startDate = data.get('startDate')?.toString();
 
     // Validation
-    if (!name || !username || !password || !startDate) {
+    if (!name || !username || !password || !startDate || !phone) {
       return fail(400, { error: 'Please fill in all required fields.' });
     }
 

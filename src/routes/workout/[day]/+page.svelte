@@ -8,6 +8,34 @@
   let { data } = $props();
   let { dayData, weekInfo, prevWorkout, recommendations, hasPeloton, today } = $derived(data);
 
+  // All exercises from DB for the picker
+  let allExercises = $derived(data.allExercises || []);
+  let showExercisePicker = $state(false);
+  let exerciseSearch = $state('');
+  let filteredExercises = $derived(
+    allExercises.filter(ex =>
+      ex.name?.toLowerCase().includes(exerciseSearch.toLowerCase()) ||
+      (ex.primaryMuscles || []).some(m => m.toLowerCase().includes(exerciseSearch.toLowerCase())) ||
+      (ex.muscleGroup || '').toLowerCase().includes(exerciseSearch.toLowerCase())
+    )
+  );
+
+  // Group filtered exercises by muscle group for picker display
+  let groupedExercises = $derived(() => {
+    const groups = {};
+    for (const ex of filteredExercises) {
+      const group = ex.primaryMuscles?.[0] || ex.muscleGroup || 'Other';
+      if (!groups[group]) groups[group] = [];
+      groups[group].push(ex);
+    }
+    return groups;
+  });
+
+  // Removed exercises with undo support
+  let removedExercises = $state({});
+  let undoToast = $state(null);
+  let undoTimer = $state(null);
+
   const isDeload = $derived(weekInfo?.isDeload ?? false);
 
   // ── State ──────────────────────────────────────────────────────────────────
@@ -65,17 +93,17 @@
 
   let exercises = $derived(dayData?.exercises ?? []);
 
-  // Exclude skipped exercises from counts
+  // Exclude skipped and removed exercises from counts
   let totalSets = $derived(
     exercises.reduce((acc, ex, ei) => {
-      if (skippedExercises[ei]) return acc;
+      if (skippedExercises[ei] || removedExercises[ei]) return acc;
       return acc + Object.keys(setStates[ei] ?? {}).length;
     }, 0) + customExercises.reduce((acc, ce) => acc + ce.sets.length, 0)
   );
 
   let completedSets = $derived(
     exercises.reduce((acc, ex, ei) => {
-      if (skippedExercises[ei]) return acc;
+      if (skippedExercises[ei] || removedExercises[ei]) return acc;
       return acc + Object.values(setStates[ei] ?? {}).filter(s => s.done).length;
     }, 0) + customExercises.reduce((acc, ce) => acc + ce.sets.filter(s => s.done).length, 0)
   );
@@ -196,6 +224,49 @@
     newExSets = [...newExSets, { weight: 0, reps: 10, rpe: null, done: false }];
   }
 
+  // Remove exercise from session
+  function handleRemoveExercise(exIdx) {
+    const ex = exercises[exIdx];
+    removedExercises[exIdx] = true;
+    removedExercises = { ...removedExercises };
+
+    // Show undo toast
+    if (undoTimer) clearTimeout(undoTimer);
+    undoToast = { exIdx, name: ex.name };
+    undoTimer = setTimeout(() => {
+      undoToast = null;
+    }, 5000);
+
+    debouncedAutoSave();
+  }
+
+  function handleUndoRemoveExercise(exIdx) {
+    delete removedExercises[exIdx];
+    removedExercises = { ...removedExercises };
+    undoToast = null;
+    if (undoTimer) clearTimeout(undoTimer);
+    debouncedAutoSave();
+  }
+
+  // Add exercise from picker
+  function addExerciseFromPicker(ex) {
+    const defaultSets = [];
+    for (let i = 0; i < 3; i++) {
+      defaultSets.push({ weight: 0, reps: 10, rpe: null, done: false, setNum: i + 1 });
+    }
+    customExercises = [...customExercises, {
+      id: ex.id || 'picked-' + Date.now(),
+      name: ex.name,
+      muscleGroup: ex.primaryMuscles?.[0] || ex.muscleGroup || 'Other',
+      equipment: ex.equipment || null,
+      custom: false,
+      sets: defaultSets
+    }];
+    showExercisePicker = false;
+    exerciseSearch = '';
+    debouncedAutoSave();
+  }
+
   function removeNewSetRow(idx) {
     if (newExSets.length <= 1) return;
     newExSets = newExSets.filter((_, i) => i !== idx);
@@ -239,22 +310,25 @@
   }
 
   function buildWorkoutPayload() {
-    const prescribedExercises = exercises.map((ex, ei) => {
-      if (skippedExercises[ei]) {
-        return { id: ex.id, skipped: true, reason: 'user_choice' };
-      }
-      return {
-        id: ex.id,
-        name: ex.name,
-        sets: Object.entries(setStates[ei]).map(([si, s]) => ({
-          setNum: parseInt(si) + 1,
-          weight: s.weight,
-          reps: s.reps,
-          rpe: s.rpe,
-          done: s.done
-        }))
-      };
-    });
+    const prescribedExercises = exercises
+      .map((ex, ei) => {
+        if (removedExercises[ei]) return null;
+        if (skippedExercises[ei]) {
+          return { id: ex.id, skipped: true, reason: 'user_choice' };
+        }
+        return {
+          id: ex.id,
+          name: ex.name,
+          sets: Object.entries(setStates[ei]).map(([si, s]) => ({
+            setNum: parseInt(si) + 1,
+            weight: s.weight,
+            reps: s.reps,
+            rpe: s.rpe,
+            done: s.done
+          }))
+        };
+      })
+      .filter(Boolean);
 
     const customExData = customExercises.map(ce => ({
       id: ce.id,
@@ -361,6 +435,10 @@
   <!-- Exercise list -->
   <div class="flex flex-col gap-4">
     {#each exercises as exercise, exIdx}
+      {@const isRemoved = !!removedExercises[exIdx]}
+      {#if isRemoved}
+        <!-- removed exercise: skip rendering -->
+      {:else}
       {@const sets = getSets(exIdx)}
       {@const isSkipped = !!skippedExercises[exIdx]}
       {@const exSetsDone = !isSkipped && Object.values(setStates[exIdx] ?? {}).every(s => s.done)}
@@ -424,6 +502,20 @@
           </div>
 
           <div class="flex items-center gap-2 shrink-0">
+            <!-- Remove exercise button -->
+            <span
+              role="button" tabindex="0"
+              onclick={(e) => { e.stopPropagation(); handleRemoveExercise(exIdx); }}
+              onkeydown={(e) => { if (e.key === 'Enter') { e.stopPropagation(); handleRemoveExercise(exIdx); } }}
+              class="rounded-lg cursor-pointer flex items-center justify-center"
+              style="background: #2A2A2E; color: #EF4444; width: 32px; height: 32px;"
+              aria-label="Remove exercise"
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+              </svg>
+            </span>
+
             <!-- Skip / Undo Skip button -->
             {#if isSkipped}
               <span
@@ -507,6 +599,7 @@
           </div>
         {/if}
       </div>
+      {/if}
     {/each}
 
     <!-- Custom Exercises -->
@@ -564,10 +657,10 @@
       </div>
     {/each}
 
-    <!-- Add Exercise Button / Form -->
-    {#if !showAddForm}
+    <!-- Add Exercise Button / Picker -->
+    {#if !showExercisePicker && !showAddForm}
       <button
-        onclick={() => (showAddForm = true)}
+        onclick={() => (showExercisePicker = true)}
         class="w-full rounded-2xl py-4 text-sm font-bold flex items-center justify-center gap-2 transition-all active:scale-98"
         style="background: #161618; border: 2px dashed #3B82F644; color: #3B82F6; min-height: 56px;"
       >
@@ -576,11 +669,80 @@
         </svg>
         Add Exercise
       </button>
+    {:else if showExercisePicker}
+      <!-- Exercise Picker -->
+      <div class="rounded-2xl p-4 flex flex-col gap-3" style="background: #161618; border: 1px solid #3B82F6;">
+        <div class="flex items-center justify-between">
+          <p class="text-sm font-bold" style="color: #F1F1F3;">Add Exercise</p>
+          <button
+            onclick={() => { showExercisePicker = false; exerciseSearch = ''; }}
+            class="text-xs font-semibold px-2 py-1 rounded-lg"
+            style="color: #9B9BA4; background: #2A2A2E;"
+          >Close</button>
+        </div>
+
+        <!-- Search input -->
+        <input
+          type="text"
+          bind:value={exerciseSearch}
+          placeholder="Search by name or muscle group..."
+          class="w-full rounded-xl px-4 py-3 text-sm outline-none"
+          style="background: #0A0A0B; border: 1px solid #2A2A2E; color: #F1F1F3; min-height: 44px;"
+        />
+
+        <!-- Exercise list -->
+        <div class="flex flex-col gap-1" style="max-height: 320px; overflow-y: auto;">
+          {#each filteredExercises as ex}
+            <button
+              onclick={() => addExerciseFromPicker(ex)}
+              class="w-full rounded-xl px-3 py-3 text-left transition-all duration-150 active:scale-98"
+              style="background: #0A0A0B; border: 1px solid #2A2A2E;"
+            >
+              <p class="text-sm font-semibold" style="color: #F1F1F3;">{ex.name}</p>
+              <div class="flex items-center gap-2 mt-1 flex-wrap">
+                {#if ex.primaryMuscles?.[0] || ex.muscleGroup}
+                  <span class="text-xs px-1.5 py-0.5 rounded-full" style="background: rgba(59,130,246,0.15); color: #3B82F6;">
+                    {ex.primaryMuscles?.[0] || ex.muscleGroup}
+                  </span>
+                {/if}
+                {#if ex.equipment}
+                  <span class="text-xs px-1.5 py-0.5 rounded-full" style="background: #2A2A2E; color: #6B6B75;">
+                    {ex.equipment}
+                  </span>
+                {/if}
+                {#if ex.difficulty}
+                  <span class="text-xs px-1.5 py-0.5 rounded-full" style="background: rgba(34,197,94,0.1); color: #22C55E;">
+                    {ex.difficulty}
+                  </span>
+                {/if}
+              </div>
+            </button>
+          {/each}
+
+          {#if filteredExercises.length === 0 && exerciseSearch}
+            <p class="text-xs text-center py-4" style="color: #6B6B75;">No exercises found for "{exerciseSearch}"</p>
+          {/if}
+
+          <!-- Custom exercise option -->
+          <button
+            onclick={() => { showExercisePicker = false; showAddForm = true; exerciseSearch = ''; }}
+            class="w-full rounded-xl px-3 py-3 text-left mt-1"
+            style="background: transparent; border: 1px dashed #3B82F644;"
+          >
+            <div class="flex items-center gap-2">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#3B82F6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+              </svg>
+              <span class="text-sm font-semibold" style="color: #3B82F6;">Custom exercise...</span>
+            </div>
+          </button>
+        </div>
+      </div>
     {:else}
+      <!-- Custom Exercise Form (fallback) -->
       <div class="rounded-2xl p-4 flex flex-col gap-3" style="background: #161618; border: 1px solid #2A2A2E;">
         <p class="text-sm font-bold" style="color: #F1F1F3;">Add Custom Exercise</p>
 
-        <!-- Exercise name -->
         <input
           type="text"
           bind:value={newExName}
@@ -589,7 +751,6 @@
           style="background: #0A0A0B; border: 1px solid #2A2A2E; color: #F1F1F3; min-height: 44px;"
         />
 
-        <!-- Muscle group -->
         <select
           bind:value={newExMuscle}
           class="w-full rounded-xl px-4 py-3 text-sm outline-none appearance-none"
@@ -600,70 +761,52 @@
           {/each}
         </select>
 
-        <!-- Sets builder -->
         <p class="text-xs font-semibold mt-1" style="color: #9B9BA4;">Sets</p>
         {#each newExSets as nset, si}
           <div class="flex items-center gap-2 rounded-xl px-3 py-2" style="background: #0A0A0B; border: 1px solid #2A2A2E;">
             <span class="text-xs font-bold shrink-0" style="color: #6B6B75;">S{si + 1}</span>
-            <input
-              type="number"
-              bind:value={nset.weight}
-              class="w-16 text-center text-sm rounded-lg px-1 py-1.5 outline-none"
-              style="background: #161618; color: #F1F1F3; border: 1px solid #2A2A2E;"
-              placeholder="lbs"
-            />
+            <input type="number" bind:value={nset.weight} class="w-16 text-center text-sm rounded-lg px-1 py-1.5 outline-none" style="background: #161618; color: #F1F1F3; border: 1px solid #2A2A2E;" placeholder="lbs" />
             <span class="text-xs" style="color: #6B6B75;">x</span>
-            <input
-              type="number"
-              bind:value={nset.reps}
-              class="w-14 text-center text-sm rounded-lg px-1 py-1.5 outline-none"
-              style="background: #161618; color: #F1F1F3; border: 1px solid #2A2A2E;"
-              placeholder="reps"
-            />
+            <input type="number" bind:value={nset.reps} class="w-14 text-center text-sm rounded-lg px-1 py-1.5 outline-none" style="background: #161618; color: #F1F1F3; border: 1px solid #2A2A2E;" placeholder="reps" />
             <span class="text-xs" style="color: #6B6B75;">RPE</span>
-            <select
-              bind:value={nset.rpe}
-              class="w-14 text-center text-sm rounded-lg px-1 py-1.5 outline-none appearance-none"
-              style="background: #161618; color: #F1F1F3; border: 1px solid #2A2A2E;"
-            >
+            <select bind:value={nset.rpe} class="w-14 text-center text-sm rounded-lg px-1 py-1.5 outline-none appearance-none" style="background: #161618; color: #F1F1F3; border: 1px solid #2A2A2E;">
               <option value={null}>-</option>
-              {#each [6,7,8,9,10] as rpe}
-                <option value={rpe}>{rpe}</option>
-              {/each}
+              {#each [6,7,8,9,10] as rpe}<option value={rpe}>{rpe}</option>{/each}
             </select>
             {#if newExSets.length > 1}
-              <button
-                onclick={() => removeNewSetRow(si)}
-                class="text-xs rounded-lg px-2 py-1"
-                style="color: #EF4444; min-height: 44px; display: flex; align-items: center;"
-              >X</button>
+              <button onclick={() => removeNewSetRow(si)} class="text-xs rounded-lg px-2 py-1" style="color: #EF4444; min-height: 44px; display: flex; align-items: center;">X</button>
             {/if}
           </div>
         {/each}
-        <button
-          onclick={addNewSetRow}
-          class="text-xs font-semibold py-2 rounded-lg"
-          style="color: #3B82F6; background: #3B82F611; min-height: 44px;"
-        >+ Add Set</button>
+        <button onclick={addNewSetRow} class="text-xs font-semibold py-2 rounded-lg" style="color: #3B82F6; background: #3B82F611; min-height: 44px;">+ Add Set</button>
 
-        <!-- Form actions -->
         <div class="flex gap-2 mt-1">
-          <button
-            onclick={() => (showAddForm = false)}
-            class="flex-1 py-3 rounded-xl text-sm font-semibold"
-            style="background: #2A2A2E; color: #9B9BA4; min-height: 44px;"
-          >Cancel</button>
-          <button
-            onclick={addCustomExercise}
-            disabled={!newExName.trim()}
-            class="flex-1 py-3 rounded-xl text-sm font-bold"
-            style="background: {newExName.trim() ? '#3B82F6' : '#2A2A2E'}; color: {newExName.trim() ? '#fff' : '#6B6B75'}; min-height: 44px;"
-          >Add Exercise</button>
+          <button onclick={() => (showAddForm = false)} class="flex-1 py-3 rounded-xl text-sm font-semibold" style="background: #2A2A2E; color: #9B9BA4; min-height: 44px;">Cancel</button>
+          <button onclick={addCustomExercise} disabled={!newExName.trim()} class="flex-1 py-3 rounded-xl text-sm font-bold" style="background: {newExName.trim() ? '#3B82F6' : '#2A2A2E'}; color: {newExName.trim() ? '#fff' : '#6B6B75'}; min-height: 44px;">Add Exercise</button>
         </div>
       </div>
     {/if}
   </div>
 </div>
+
+<!-- Undo remove toast -->
+{#if undoToast}
+  <div class="fixed bottom-20 left-0 right-0 flex justify-center z-30 px-4" style="pointer-events: none;">
+    <div
+      class="flex items-center gap-3 rounded-xl px-4 py-3 shadow-lg"
+      style="background: #2A2A2E; border: 1px solid #3B82F6; pointer-events: auto; max-width: 400px;"
+    >
+      <p class="text-sm flex-1" style="color: #F1F1F3;">
+        Removed <strong>{undoToast.name}</strong>
+      </p>
+      <button
+        onclick={() => handleUndoRemoveExercise(undoToast.exIdx)}
+        class="text-xs font-bold px-3 py-1.5 rounded-lg"
+        style="background: #3B82F6; color: #fff;"
+      >Undo</button>
+    </div>
+  </div>
+{/if}
 
 <!-- Floating Finish Workout button -->
 {#if hasAnyCompletion && !showFeedback && !showSummary}
@@ -753,7 +896,7 @@
 <!-- Summary overlay -->
 {#if showSummary}
   {@const totalVolume = exercises.reduce((acc, ex, ei) => {
-    if (skippedExercises[ei]) return acc;
+    if (skippedExercises[ei] || removedExercises[ei]) return acc;
     return acc + Object.values(setStates[ei] ?? {}).reduce((a, s) => {
       if (!s.done) return a;
       const w = typeof s.weight === 'number' ? s.weight : 0;
@@ -761,7 +904,7 @@
     }, 0);
   }, 0) + customExercises.reduce((acc, ce) => acc + ce.sets.reduce((a, s) => s.done ? a + ((typeof s.weight === 'number' ? s.weight : 0) * (s.reps || 0)) : a, 0), 0)}
   {@const completedExerciseNames = [
-    ...exercises.map((ex, ei) => ({ name: ex.name, ei })).filter(({ ei }) => !skippedExercises[ei] && Object.values(setStates[ei] ?? {}).some(s => s.done)).map(({ name, ei }) => ({ name, done: Object.values(setStates[ei] ?? {}).filter(s => s.done).length })),
+    ...exercises.map((ex, ei) => ({ name: ex.name, ei })).filter(({ ei }) => !skippedExercises[ei] && !removedExercises[ei] && Object.values(setStates[ei] ?? {}).some(s => s.done)).map(({ name, ei }) => ({ name, done: Object.values(setStates[ei] ?? {}).filter(s => s.done).length })),
     ...customExercises.filter(ce => ce.sets.some(s => s.done)).map(ce => ({ name: ce.name, done: ce.sets.filter(s => s.done).length }))
   ]}
   <div class="fixed inset-0 z-50 flex items-center justify-center px-4" style="background: rgba(0,0,0,0.85);">

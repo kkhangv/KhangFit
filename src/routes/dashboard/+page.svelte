@@ -196,7 +196,7 @@
           </span>
         </div>
         <p class="text-sm font-bold leading-tight" style="color: #F1F1F3;">{day.name}</p>
-        <p class="text-xs" style="color: #9B9BA4;">{day.exercises?.length ?? 0} exercises</p>
+        <p class="text-xs" style="color: #9B9BA4;">{day.exerciseCount || day.exercises?.length || day.exerciseIds?.length || 0} exercises</p>
         {#if status === 'today'}
           <div class="mt-1 text-xs font-bold text-center py-1.5 rounded-lg" style="background: #3B82F6; color: #fff;">
             Start Workout →

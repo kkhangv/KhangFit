@@ -81,7 +81,13 @@ export async function load({ cookies }) {
   ]);
 
   // Use DB program days if available, else fall back to hardcoded workoutProgram
-  const days = (programDays && programDays.length > 0) ? programDays : workoutProgram;
+  const rawDays = (programDays && programDays.length > 0) ? programDays : workoutProgram;
+
+  // Enrich each day with exerciseCount so the UI can display it
+  const days = rawDays.map(day => ({
+    ...day,
+    exerciseCount: day.exercises?.length || day.exerciseIds?.length || 0
+  }));
 
   // Build day-of-week mapping from program metadata or fall back to hardcoded
   const dayDowMap = {};

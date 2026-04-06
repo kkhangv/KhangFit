@@ -5,13 +5,16 @@ import { Redis } from '@upstash/redis';
 import { env } from '$env/dynamic/private';
 
 function createClient() {
-  const url = env.UPSTASH_REDIS_REST_URL;
-  const token = env.UPSTASH_REDIS_REST_TOKEN;
+  // Vercel KV (Upstash) integration injects KV_REST_API_URL / KV_REST_API_TOKEN.
+  // Fall back to UPSTASH_REDIS_REST_URL / UPSTASH_REDIS_REST_TOKEN for local dev.
+  const url = env.KV_REST_API_URL || env.UPSTASH_REDIS_REST_URL;
+  const token = env.KV_REST_API_TOKEN || env.UPSTASH_REDIS_REST_TOKEN;
 
   if (!url || !token) {
     throw new Error(
-      'Missing Upstash Redis credentials. ' +
-        'Set UPSTASH_REDIS_REST_URL and UPSTASH_REDIS_REST_TOKEN in your environment.'
+      'Missing Redis credentials. Set KV_REST_API_URL and KV_REST_API_TOKEN ' +
+        '(from the Vercel Upstash integration) or UPSTASH_REDIS_REST_URL / ' +
+        'UPSTASH_REDIS_REST_TOKEN for local dev.'
     );
   }
 

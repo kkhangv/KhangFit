@@ -83,9 +83,10 @@ export async function load({ cookies }) {
   // Use DB program days if available, else fall back to hardcoded workoutProgram
   const rawDays = (programDays && programDays.length > 0) ? programDays : workoutProgram;
 
-  // Enrich each day with exerciseCount so the UI can display it
-  const days = rawDays.map(day => ({
+  // Enrich each day with exerciseCount and dayIndex for URL routing
+  const days = rawDays.map((day, idx) => ({
     ...day,
+    dayIndex: idx + 1,
     exerciseCount: day.exercises?.length || day.exerciseIds?.length || 0
   }));
 

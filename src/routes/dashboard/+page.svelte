@@ -181,18 +181,18 @@
 
   <!-- Day cards grid -->
   <div class="grid grid-cols-2 gap-3 mb-8">
-    {#each days as day}
+    {#each days as day, dayIdx}
       {@const status = dayStatuses[day.id] ?? 'upcoming'}
       {@const colors = dayColors[status]}
       <a
-        href="/workout/{day.id.replace('day', '')}"
+        href="/workout/{dayIdx + 1}"
         class="rounded-2xl p-4 flex flex-col gap-2 transition-all duration-200 active:scale-95"
         style="background: {colors.bg}; border: 1px solid {colors.border}; text-decoration: none;"
       >
         <div class="flex items-center justify-between">
           <span class="text-xs font-bold" style="color: {colors.labelColor};">{colors.label}</span>
           <span class="text-xs font-semibold px-2 py-0.5 rounded-full" style="background: rgba(255,255,255,0.05); color: #9B9BA4;">
-            Day {day.id.replace('day', '')}
+            Day {day.dayIndex || dayIdx + 1}
           </span>
         </div>
         <p class="text-sm font-bold leading-tight" style="color: #F1F1F3;">{day.name}</p>
@@ -225,7 +225,7 @@
       <span class="text-sm font-black leading-tight" style="color: #F1F1F3;">
         {nextDay ? nextDay.name.split(' ')[0] : '—'}
       </span>
-      <span class="text-xs" style="color: #6B6B75;">{nextDay ? `Day ${nextDay.id.replace('day','')}` : 'All done!'}</span>
+      <span class="text-xs" style="color: #6B6B75;">{nextDay ? `Day ${nextDay.dayIndex || ''}` : 'All done!'}</span>
     </div>
   </div>
 
@@ -303,7 +303,7 @@
     </a>
     {#if nextDay}
       <a
-        href="/workout/{nextDay.id.replace('day', '')}"
+        href="/workout/{nextDay.dayIndex || 1}"
         class="flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-bold"
         style="background: #3B82F6; color: #fff;"
       >

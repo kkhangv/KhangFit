@@ -1,8 +1,9 @@
 import { requireAuth } from '$lib/auth';
-import { getUserConfig, getWorkoutHistory, getWorkout, getUserProgram } from '$lib/storage';
+import { getUserConfig, getWorkoutHistory, getWorkout, getUserProgram, getLatestStats } from '$lib/storage';
 import { getCurrentWeek } from '$lib/weekCalc';
 import { getDay } from '$lib/workoutData';
 import { getOverloadRecommendation } from '$lib/overload';
+import { calcWorkingWeight } from '$lib/intensityCalc';
 import { kv } from '$lib/kv';
 import { getProgramDays, getExercise, getAllExercises } from '$lib/programData';
 
@@ -51,11 +52,14 @@ export async function load({ cookies, params }) {
 
   const dayId = 'day' + dayNum;
 
-  const [config, history, userProgram] = await Promise.all([
+  const [config, history, userProgram, latestStats] = await Promise.all([
     getUserConfig(username),
     getWorkoutHistory(username),
-    getUserProgram(username)
+    getUserProgram(username),
+    getLatestStats(username)
   ]);
+
+  const maxBench = latestStats?.maxBench || 185;
 
   const weekInfo = getCurrentWeek(config?.startDate, config?.weekOverride);
 
@@ -72,23 +76,50 @@ export async function load({ cookies, params }) {
       dayData.exerciseIds.map(async (id) => {
         const full = await getExercise(kv, id);
         const note = exerciseNotes[id];
-        const sets = buildSetsFromNote(note);
+        const { numSets, reps, rpe } = parseExerciseNote(note);
+
+        // Calculate working weight from user's max bench
+        const targetReps = parseInt(reps) || 8;
+        let suggestedWeight = calcWorkingWeight(maxBench, targetReps, rpe || 8);
+        // Round to nearest 2.5
+        suggestedWeight = Math.round(suggestedWeight / 2.5) * 2.5;
+
+        const sets = [];
+        for (let i = 0; i < numSets; i++) {
+          sets.push({
+            setNum: i + 1,
+            weight: suggestedWeight,
+            reps: reps,
+            rpe: rpe,
+            rest: 120,
+            tempo: null,
+            technique: null,
+            weightNote: note || null
+          });
+        }
 
         if (full) {
+          // Format equipment array to string
+          const equipStr = Array.isArray(full.equipment) ? full.equipment.join(' + ') : (full.equipment || null);
+          // Get first pro tip as the cue
+          const cue = (full.proTips && full.proTips.length > 0) ? full.proTips[0] : null;
+          // Science tip as string
+          const sciTip = typeof full.scienceTip === 'string' ? full.scienceTip : null;
+
           return {
             id: full.id || id,
             name: full.name || formatExerciseId(id),
-            equipment: full.equipment || null,
-            muscleGroup: full.primaryMuscles?.[0] || full.muscleGroup || null,
-            cue: full.cue || full.formCues?.[0] || null,
-            tip: full.scienceTip || full.tip || null,
-            scienceTip: full.scienceTip || null,
+            equipment: equipStr,
+            muscleGroup: (full.primaryMuscles?.[0] || '').replace(/-/g, ' '),
+            cue: cue,
+            tip: sciTip,
+            scienceTip: sciTip,
             proTips: full.proTips || [],
             sets
           };
         }
 
-        // Fallback: exercise not found in DB, build minimal object from ID + note
+        // Fallback: exercise not found in DB
         return {
           id,
           name: formatExerciseId(id),
@@ -133,16 +164,18 @@ export async function load({ cookies, params }) {
 
   const prevWorkout = prevEntry ? await getWorkout(username, prevEntry.date) : null;
 
-  // Build per-exercise overload recommendations
+  // Build per-exercise overload recommendations (extract .reason string from result object)
   const recommendations = {};
   if (dayData?.exercises) {
     for (const exercise of dayData.exercises) {
       const prevLogs = prevWorkout?.exercises?.find(e => e.id === exercise.id)?.sets || null;
-      recommendations[exercise.id] = getOverloadRecommendation(
+      const result = getOverloadRecommendation(
         exercise.id,
         prevLogs,
         weekInfo?.cycleWeek ?? 1
       );
+      // getOverloadRecommendation returns { action, increment, reason } — extract reason string
+      recommendations[exercise.id] = typeof result === 'string' ? result : (result?.reason || null);
     }
   }
 

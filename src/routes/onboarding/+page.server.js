@@ -2,7 +2,7 @@ import { redirect, fail } from '@sveltejs/kit';
 import { getUser, createUser, updateUserConfig, saveStats, setUserProgram } from '$lib/storage';
 import { hashPassword, createSession } from '$lib/auth';
 import { kv } from '$lib/kv';
-import { getAllPrograms } from '$lib/programData';
+import { getAllPrograms, seedPrograms } from '$lib/programData';
 
 export async function load({ cookies }) {
   // Already logged in → skip onboarding
@@ -12,7 +12,19 @@ export async function load({ cookies }) {
     redirect(302, '/dashboard');
   }
 
-  const programs = await getAllPrograms(kv);
+  let programs = await getAllPrograms(kv);
+
+  // Auto-seed programs if DB is empty (first-time setup)
+  if (!programs || programs.length === 0) {
+    try {
+      await seedPrograms(kv);
+      programs = await getAllPrograms(kv);
+    } catch (e) {
+      console.error('Auto-seed failed:', e);
+      programs = [];
+    }
+  }
+
   return { programs: programs || [] };
 }
 
@@ -25,6 +37,7 @@ export const actions = {
     const username = data.get('username')?.toString().trim().toLowerCase();
     const password = data.get('password')?.toString();
     const confirmPassword = data.get('confirmPassword')?.toString();
+    const phone = data.get('phone')?.toString().trim() || null;
 
     // Step 2 fields
     const bodyWeight = parseFloat(data.get('bodyWeight'));
@@ -66,7 +79,7 @@ export const actions = {
     const passwordHash = await hashPassword(password);
 
     // Create user
-    await createUser(username, { name, passwordHash, createdAt: new Date().toISOString() });
+    await createUser(username, { name, passwordHash, phone });
 
     // Save selected program
     const programId = data.get('programId')?.toString() || 'chest-focus-4day';

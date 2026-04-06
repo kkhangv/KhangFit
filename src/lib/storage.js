@@ -34,13 +34,13 @@ export async function getUser(username) {
  * @param {{ name: string, passwordHash: string }} options
  * @returns {Promise<object>} the created user object
  */
-export async function createUser(username, { name, passwordHash }) {
+export async function createUser(username, { name, passwordHash, phone = null }) {
   const existing = await kv.get(keys.user(username));
   if (existing) {
     throw new Error(`User "${username}" already exists.`);
   }
 
-  const user = { username, name, passwordHash, createdAt: new Date().toISOString() };
+  const user = { username, name, passwordHash, phone, createdAt: new Date().toISOString() };
   const config = { name, startDate: null, weekOverride: null };
 
   await Promise.all([

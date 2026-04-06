@@ -1,6 +1,6 @@
 import { json } from '@sveltejs/kit';
 import { requireAuth } from '$lib/auth';
-import { saveWorkout, addToHistory } from '$lib/storage';
+import { saveWorkout } from '$lib/storage';
 
 export async function POST({ request, cookies, params }) {
   const username = requireAuth(cookies);
@@ -9,8 +9,8 @@ export async function POST({ request, cookies, params }) {
   const today = new Date().toISOString().split('T')[0];
   const dayNum = parseInt(params.day);
 
+  // saveWorkout internally calls addToHistory with the date string
   await saveWorkout(username, today, { ...workoutData, day: dayNum, date: today });
-  await addToHistory(username, { date: today, day: dayNum });
 
   return json({ success: true });
 }

@@ -9,6 +9,7 @@
   // Step 1
   let name = $state('');
   let username = $state('');
+  let phone = $state('');
   let password = $state('');
   let confirmPassword = $state('');
 
@@ -127,6 +128,7 @@
       {#if step > 1}
         <input type="hidden" name="name" value={name} />
         <input type="hidden" name="username" value={username.toLowerCase()} />
+        <input type="hidden" name="phone" value={phone} />
         <input type="hidden" name="password" value={password} />
         <input type="hidden" name="confirmPassword" value={confirmPassword} />
       {/if}
@@ -175,6 +177,19 @@
                 onblur={(e) => (e.currentTarget.style.borderColor = '#2A2A2E')}
               />
               <p class="text-xs" style="color: #6B6B75;">Letters, numbers, underscores only. Used to log in.</p>
+            </div>
+            <div class="flex flex-col gap-1.5">
+              <label class="text-sm font-medium" style="color: #9B9BA4;">Phone Number <span style="color: #6B6B75;">(optional)</span></label>
+              <input
+                type="tel"
+                bind:value={phone}
+                placeholder="+1 (555) 123-4567"
+                autocomplete="tel"
+                class="w-full rounded-xl px-4 py-3 text-sm outline-none"
+                style="background: #0A0A0B; border: 1px solid #2A2A2E; color: #F1F1F3;"
+                onfocus={(e) => (e.currentTarget.style.borderColor = '#3B82F6')}
+                onblur={(e) => (e.currentTarget.style.borderColor = '#2A2A2E')}
+              />
             </div>
             <div class="flex flex-col gap-1.5">
               <label class="text-sm font-medium" style="color: #9B9BA4;">Password</label>

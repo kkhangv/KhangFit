@@ -1,6 +1,7 @@
 // Progressive overload calculation logic.
 
-import { DELOAD_WEIGHT_FACTOR, DELOAD_WEEK } from './workoutData.js';
+const DELOAD_WEIGHT_FACTOR = 0.6;
+const DELOAD_WEEK = 5;
 
 // Increment amounts by equipment type
 const BARBELL_INCREMENT = 5;   // lbs

@@ -8,6 +8,7 @@ import { kv } from './kv.js';
 const keys = {
   user: (username) => `user:${username}`,
   userConfig: (username) => `user:${username}:config`,
+  plan: (username) => `plan:${username}`,
   statsLatest: (username) => `stats:${username}:latest`,
   statsDate: (username, date) => `stats:${username}:${date}`,
   workout: (username, date) => `workout:${username}:${date}`,
@@ -72,6 +73,28 @@ export async function updateUserConfig(username, config) {
  */
 export async function getUserConfig(username) {
   const raw = await kv.get(keys.userConfig(username));
+  if (!raw) return null;
+  return typeof raw === 'string' ? JSON.parse(raw) : raw;
+}
+
+// ─── Plan functions ─────────────────────────────────────────────────────────
+
+/**
+ * Save an AI-generated workout plan for a user.
+ * @param {string} username
+ * @param {object} planData - The full plan JSON from Claude
+ */
+export async function savePlan(username, planData) {
+  await kv.set(keys.plan(username), JSON.stringify(planData));
+}
+
+/**
+ * Fetch the user's current workout plan, or null.
+ * @param {string} username
+ * @returns {Promise<object | null>}
+ */
+export async function getPlan(username) {
+  const raw = await kv.get(keys.plan(username));
   if (!raw) return null;
   return typeof raw === 'string' ? JSON.parse(raw) : raw;
 }

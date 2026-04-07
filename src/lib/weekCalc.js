@@ -1,7 +1,7 @@
 // Training-week and day calculation utilities.
 // All date arithmetic uses Monday-anchored ISO weeks.
 
-import { DELOAD_WEEK } from './workoutData.js';
+const DELOAD_WEEK = 5;
 
 // Maps JS getDay() values (0=Sun … 6=Sat) to program day numbers.
 // Days not listed are rest days (null).
@@ -55,7 +55,7 @@ function toDate(value) {
  * }}
  */
 export function getCurrentWeek(startDate, weekOverride = null) {
-  const start = toDate(getMondayOf(toDate(startDate)));
+  const start = toDate(getMondayOf(toDate(startDate || new Date().toISOString().slice(0, 10))));
   const now = toDate(getMondayOf(new Date()));
 
   const msPerDay = 24 * 60 * 60 * 1000;

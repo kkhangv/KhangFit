@@ -12,6 +12,7 @@
   let name = $state('');
   let username = $state('');
   let password = $state('');
+  let phone = $state('');
   let showPassword = $state(false);
 
   // Step 2: About You + Training
@@ -115,6 +116,7 @@
       if (!username.trim()) { localError = 'Choose a username.'; return; }
       if (!username.match(/^[a-z0-9_]+$/i)) { localError = 'Username: letters, numbers, underscores only.'; return; }
       if (!password || password.length < 6) { localError = 'Password must be at least 6 characters.'; return; }
+      if (!phone.trim() || phone.replace(/\D/g, '').length < 10) { localError = 'Enter a valid phone number (10+ digits).'; return; }
     }
     if (step === 2) {
       if (!trainingAge) { localError = 'How long have you been training?'; return; }
@@ -226,6 +228,7 @@
       <input type="hidden" name="name" value={name} />
       <input type="hidden" name="username" value={username.toLowerCase()} />
       <input type="hidden" name="password" value={password} />
+      <input type="hidden" name="phone" value={phone} />
       <input type="hidden" name="age" value={age} />
       <input type="hidden" name="bodyWeight" value={bodyWeight} />
       <input type="hidden" name="bodyFat" value={bodyFat} />
@@ -281,6 +284,18 @@
                   {showPassword ? 'Hide' : 'Show'}
                 </button>
               </div>
+            </div>
+            <div class="flex flex-col gap-1.5">
+              <label class="text-base font-medium" style="color: #9B9BA4;">Phone Number</label>
+              <input
+                type="tel"
+                bind:value={phone}
+                placeholder="+1 (555) 000-0000"
+                autocomplete="tel"
+                inputmode="numeric"
+                class="w-full rounded-xl px-4 py-3 text-base outline-none"
+                style="background: #0A0A0B; border: 1px solid #2A2A2E; color: #F1F1F3;" />
+              <p class="text-xs" style="color: #6B6B75;">Used for account recovery only.</p>
             </div>
           </div>
         {/if}

@@ -56,9 +56,9 @@
       title: 'Sets, Reps & Rest',
       body: 'Your plan prescribes exact rep targets (e.g. "8 reps") not ranges. After each set, tell the app how hard it was and it adjusts your next set automatically.',
       items: [
-        { label: 'Sets', desc: 'Groups of reps with rest between them', color: '#10B981' },
-        { label: 'Reps', desc: 'Number of times you lift the weight', color: '#10B981' },
-        { label: 'Rest', desc: '60\u2013120 sec between sets for hypertrophy', color: '#10B981' },
+        { label: 'Sets', desc: 'Groups of reps with rest between them', color: '#84CC16' },
+        { label: 'Reps', desc: 'Number of times you lift the weight', color: '#84CC16' },
+        { label: 'Rest', desc: '60\u2013120 sec between sets for hypertrophy', color: '#84CC16' },
       ]
     },
     {
@@ -157,7 +157,7 @@
 </script>
 
 <svelte:head>
-  <title>LIFT — Set Up Your Account</title>
+  <title>KhangLift — Set Up Your Account</title>
 </svelte:head>
 
 <div class="min-h-screen flex items-center justify-center px-4 py-12" style="background: #0A0A0B;">
@@ -165,7 +165,7 @@
 
     <!-- Header -->
     <div class="text-center mb-8">
-      <div class="inline-flex items-center justify-center rounded-2xl mb-4" style="width: 56px; height: 56px; background: #10B981;">
+      <div class="inline-flex items-center justify-center rounded-2xl mb-4" style="width: 56px; height: 56px; background: #84CC16;">
         <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
           <path d="M6 4v16M18 4v16M3 8h3M18 8h3M3 16h3M18 16h3M6 12h12" />
         </svg>
@@ -183,7 +183,7 @@
               class="flex items-center justify-center rounded-full text-xs font-bold shrink-0 transition-all duration-300"
               style="
                 width: 28px; height: 28px;
-                background: {step > idx ? '#22C55E' : step === idx ? '#10B981' : '#2A2A2E'};
+                background: {step > idx ? '#22C55E' : step === idx ? '#84CC16' : '#2A2A2E'};
                 color: {step >= idx ? '#fff' : '#6B6B75'};
               "
             >
@@ -299,10 +299,10 @@
                   <button type="button" onclick={() => trainingAge = ta.id}
                     class="w-full flex items-center justify-between px-4 py-3 rounded-xl text-left transition-all"
                     style="
-                      background: {trainingAge === ta.id ? 'rgba(16,185,129,0.1)' : '#0A0A0B'};
-                      border: 1px solid {trainingAge === ta.id ? '#10B981' : '#2A2A2E'};
+                      background: {trainingAge === ta.id ? 'rgba(132,204,22,0.1)' : '#0A0A0B'};
+                      border: 1px solid {trainingAge === ta.id ? '#84CC16' : '#2A2A2E'};
                     ">
-                    <span class="text-base font-semibold" style="color: {trainingAge === ta.id ? '#10B981' : '#F1F1F3'};">{ta.label}</span>
+                    <span class="text-base font-semibold" style="color: {trainingAge === ta.id ? '#84CC16' : '#F1F1F3'};">{ta.label}</span>
                     <span class="text-xs" style="color: #6B6B75;">{ta.desc}</span>
                   </button>
                 {/each}
@@ -351,7 +351,7 @@
                 {#each goals as g}
                   <button type="button" onclick={() => goal = g.id}
                     class="px-4 py-2.5 rounded-xl text-base font-semibold transition-all"
-                    style="background: {goal === g.id ? '#10B981' : '#1E1E22'}; color: {goal === g.id ? '#fff' : '#9B9BA4'}; border: 1px solid {goal === g.id ? '#10B981' : '#2A2A2E'};">
+                    style="background: {goal === g.id ? '#84CC16' : '#1E1E22'}; color: {goal === g.id ? '#fff' : '#9B9BA4'}; border: 1px solid {goal === g.id ? '#84CC16' : '#2A2A2E'};">
                     {g.label}
                   </button>
                 {/each}
@@ -365,7 +365,7 @@
                 {#each [3, 4, 5, 6] as d}
                   <button type="button" onclick={() => daysPerWeek = d}
                     class="w-14 py-2.5 rounded-xl text-base font-bold text-center transition-all"
-                    style="background: {daysPerWeek === d ? '#10B981' : '#1E1E22'}; color: {daysPerWeek === d ? '#fff' : '#9B9BA4'}; border: 1px solid {daysPerWeek === d ? '#10B981' : '#2A2A2E'};">
+                    style="background: {daysPerWeek === d ? '#84CC16' : '#1E1E22'}; color: {daysPerWeek === d ? '#fff' : '#9B9BA4'}; border: 1px solid {daysPerWeek === d ? '#84CC16' : '#2A2A2E'};">
                     {d}
                   </button>
                 {/each}
@@ -386,7 +386,7 @@
                 {#each muscleGroups as m}
                   <button type="button" onclick={() => toggleMuscle(m)}
                     class="px-3 py-2 rounded-lg text-base font-medium transition-all"
-                    style="background: {focusMuscles.includes(m) ? 'rgba(16,185,129,0.15)' : '#1E1E22'}; color: {focusMuscles.includes(m) ? '#10B981' : '#6B6B75'}; border: 1px solid {focusMuscles.includes(m) ? '#10B981' : '#2A2A2E'};">
+                    style="background: {focusMuscles.includes(m) ? 'rgba(132,204,22,0.15)' : '#1E1E22'}; color: {focusMuscles.includes(m) ? '#84CC16' : '#6B6B75'}; border: 1px solid {focusMuscles.includes(m) ? '#84CC16' : '#2A2A2E'};">
                     {focusMuscles.includes(m) ? '\u2713 ' : ''}{m}
                   </button>
                 {/each}
@@ -400,7 +400,7 @@
                 {#each cardioOptions as c}
                   <button type="button" onclick={() => cardio = c.id}
                     class="px-3 py-2 rounded-lg text-base font-medium transition-all"
-                    style="background: {cardio === c.id ? 'rgba(16,185,129,0.15)' : '#1E1E22'}; color: {cardio === c.id ? '#10B981' : '#6B6B75'}; border: 1px solid {cardio === c.id ? '#10B981' : '#2A2A2E'};">
+                    style="background: {cardio === c.id ? 'rgba(132,204,22,0.15)' : '#1E1E22'}; color: {cardio === c.id ? '#84CC16' : '#6B6B75'}; border: 1px solid {cardio === c.id ? '#84CC16' : '#2A2A2E'};">
                     {c.label}
                   </button>
                 {/each}
@@ -425,7 +425,7 @@
             <div class="flex flex-col gap-2">
               <label class="flex items-center gap-2 text-base font-semibold cursor-pointer" style="color: #9B9BA4;">
                 <input type="checkbox" bind:checked={mobilityEnabled}
-                  class="rounded" style="accent-color: #10B981;" />
+                  class="rounded" style="accent-color: #84CC16;" />
                 Include PT / Mobility Work
               </label>
               {#if mobilityEnabled}
@@ -433,7 +433,7 @@
                   {#each mobilityAreas as area}
                     <button type="button" onclick={() => toggleMobility(area)}
                       class="px-3 py-2 rounded-lg text-base font-medium transition-all"
-                      style="background: {mobility.includes(area) ? 'rgba(16,185,129,0.15)' : '#1E1E22'}; color: {mobility.includes(area) ? '#10B981' : '#6B6B75'}; border: 1px solid {mobility.includes(area) ? '#10B981' : '#2A2A2E'};">
+                      style="background: {mobility.includes(area) ? 'rgba(132,204,22,0.15)' : '#1E1E22'}; color: {mobility.includes(area) ? '#84CC16' : '#6B6B75'}; border: 1px solid {mobility.includes(area) ? '#84CC16' : '#2A2A2E'};">
                       {mobility.includes(area) ? '\u2713 ' : ''}{area}
                     </button>
                   {/each}
@@ -456,13 +456,13 @@
                 {#each durations as d}
                   <button type="button" onclick={() => sessionDuration = d}
                     class="px-4 py-2 rounded-xl text-base font-semibold transition-all"
-                    style="background: {sessionDuration === d ? '#10B981' : '#1E1E22'}; color: {sessionDuration === d ? '#fff' : '#9B9BA4'}; border: 1px solid {sessionDuration === d ? '#10B981' : '#2A2A2E'};">
+                    style="background: {sessionDuration === d ? '#84CC16' : '#1E1E22'}; color: {sessionDuration === d ? '#fff' : '#9B9BA4'}; border: 1px solid {sessionDuration === d ? '#84CC16' : '#2A2A2E'};">
                     {d} min
                   </button>
                 {/each}
                 <button type="button" onclick={() => sessionDuration = 0}
                   class="px-4 py-2 rounded-xl text-base font-semibold transition-all"
-                  style="background: {sessionDuration === 0 ? '#10B981' : '#1E1E22'}; color: {sessionDuration === 0 ? '#fff' : '#9B9BA4'}; border: 1px solid {sessionDuration === 0 ? '#10B981' : '#2A2A2E'};">
+                  style="background: {sessionDuration === 0 ? '#84CC16' : '#1E1E22'}; color: {sessionDuration === 0 ? '#fff' : '#9B9BA4'}; border: 1px solid {sessionDuration === 0 ? '#84CC16' : '#2A2A2E'};">
                   No limit
                 </button>
               </div>
@@ -486,11 +486,11 @@
             <!-- Loading / ready state -->
             <div class="flex flex-col items-center gap-3">
               {#if loading}
-                <div class="w-12 h-12 rounded-full border-4 border-t-transparent animate-spin" style="border-color: #10B981; border-top-color: transparent;"></div>
+                <div class="w-12 h-12 rounded-full border-4 border-t-transparent animate-spin" style="border-color: #84CC16; border-top-color: transparent;"></div>
                 <p class="text-base font-semibold" style="color: #F1F1F3;">Setting up your program...</p>
                 <p class="text-sm" style="color: #6B6B75;">Usually takes about 10 seconds</p>
               {:else}
-                <div class="w-12 h-12 rounded-full flex items-center justify-center" style="background: #10B981;">
+                <div class="w-12 h-12 rounded-full flex items-center justify-center" style="background: #84CC16;">
                   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round">
                     <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
                   </svg>
@@ -506,7 +506,7 @@
             <!-- Education card carousel -->
             <div class="rounded-xl p-4 transition-all" style="background: #0A0A0B; border: 1px solid #2A2A2E; min-height: 180px;">
               <div class="flex items-center justify-between mb-2">
-                <span class="text-xs font-bold uppercase tracking-wider" style="color: #10B981;">{eduTips[eduIndex].title}</span>
+                <span class="text-xs font-bold uppercase tracking-wider" style="color: #84CC16;">{eduTips[eduIndex].title}</span>
                 <span class="text-xs" style="color: #4B4B55;">{eduIndex + 1}/{eduTips.length}</span>
               </div>
               <p class="text-xs leading-relaxed mb-3" style="color: #9B9BA4;">{eduTips[eduIndex].body}</p>
@@ -525,7 +525,7 @@
                 {#each eduTips as _, i}
                   <button type="button" onclick={() => eduIndex = i}
                     class="rounded-full transition-all"
-                    style="width: {eduIndex === i ? '16px' : '6px'}; height: 6px; background: {eduIndex === i ? '#10B981' : '#2A2A2E'};"
+                    style="width: {eduIndex === i ? '16px' : '6px'}; height: 6px; background: {eduIndex === i ? '#84CC16' : '#2A2A2E'};"
                   ></button>
                 {/each}
               </div>
@@ -546,12 +546,12 @@
 
         {#if step < 3}
           <button type="button" onclick={nextStep}
-            class="flex-1 rounded-xl py-3.5 text-base font-bold active:scale-95" style="background: #10B981; color: #fff;">
+            class="flex-1 rounded-xl py-3.5 text-base font-bold active:scale-95" style="background: #84CC16; color: #fff;">
             Continue
           </button>
         {:else if step === 3}
           <button type="button" onclick={nextStep}
-            class="flex-1 rounded-xl py-3.5 text-base font-bold active:scale-95" style="background: #10B981; color: #fff;">
+            class="flex-1 rounded-xl py-3.5 text-base font-bold active:scale-95" style="background: #84CC16; color: #fff;">
             Generate My Plan
           </button>
         {:else}
@@ -565,7 +565,7 @@
     </form>
 
     <p class="text-center mt-6 text-base" style="color: #9B9BA4;">
-      Already have an account? <a href="/" class="font-semibold" style="color: #10B981;">Log in</a>
+      Already have an account? <a href="/" class="font-semibold" style="color: #84CC16;">Log in</a>
     </p>
   </div>
 </div>

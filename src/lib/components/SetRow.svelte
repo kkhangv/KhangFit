@@ -24,7 +24,7 @@
 
   const techniqueColors = {
     'drop set': { bg: '#F97316', text: '#0A0A0B' },
-    'rest-pause': { bg: '#10B981', text: '#F1F1F3' },
+    'rest-pause': { bg: '#84CC16', text: '#F1F1F3' },
     superset: { bg: '#8B5CF6', text: '#F1F1F3' }
   };
 
@@ -113,7 +113,7 @@
           {/if}
           {#if recommendation}
             <span class="flex items-center gap-1">
-              <span class="text-sm font-medium" style="color: #10B981;">{recommendation}</span>
+              <span class="text-sm font-medium" style="color: #84CC16;">{recommendation}</span>
               <InfoTip
                 text="Based on double progression: when you hit the top of your rep range on all working sets, add the smallest weight increment."
                 citation="Schoenfeld et al., 2017; NSCA Guidelines"
@@ -170,7 +170,7 @@
       <button
         onclick={handleComplete}
         class="flex items-center justify-center rounded-xl shrink-0 transition-all duration-200 active:scale-95"
-        style="width: 48px; height: 48px; background: {isActive ? '#10B981' : '#2A2A2E'}; color: {isActive ? '#fff' : '#6B6B75'};"
+        style="width: 48px; height: 48px; background: {isActive ? '#84CC16' : '#2A2A2E'}; color: {isActive ? '#fff' : '#6B6B75'};"
         aria-label="Mark set complete"
       >
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -190,7 +190,7 @@
           class="rounded-full text-sm font-semibold transition-all duration-150"
           style="
             min-width: 32px; height: 32px; padding: 0 6px;
-            background: {rpe === r ? '#10B981' : '#2A2A2E'};
+            background: {rpe === r ? '#84CC16' : '#2A2A2E'};
             color: {rpe === r ? '#fff' : '#9B9BA4'};
           "
         >

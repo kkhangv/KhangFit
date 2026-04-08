@@ -94,7 +94,7 @@
   <!-- Suggested adjustments -->
   {#if adjustments.length > 0}
     <div class="flex flex-col gap-2">
-      <h3 class="text-base font-semibold uppercase tracking-wider" style="color: #10B981;">Next Session Suggestions</h3>
+      <h3 class="text-base font-semibold uppercase tracking-wider" style="color: #84CC16;">Next Session Suggestions</h3>
       <div class="flex flex-col gap-1.5">
         {#each adjustments as adj}
           <div
@@ -102,7 +102,7 @@
             style="background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.2);"
           >
             <span class="text-sm font-medium flex-1" style="color: #F1F1F3;">{adj.exercise}</span>
-            <span class="text-base font-semibold" style="color: #10B981;">{adj.recommendation}</span>
+            <span class="text-base font-semibold" style="color: #84CC16;">{adj.recommendation}</span>
           </div>
         {/each}
       </div>
@@ -127,7 +127,7 @@
   <button
     onclick={onContinue}
     class="w-full rounded-xl py-4 text-base font-bold transition-all active:scale-98"
-    style="background: #10B981; color: #fff; min-height: 56px;"
+    style="background: #84CC16; color: #fff; min-height: 56px;"
   >
     Back to Dashboard
   </button>

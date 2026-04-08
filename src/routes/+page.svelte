@@ -7,7 +7,7 @@
 </script>
 
 <svelte:head>
-  <title>LIFT — Log In</title>
+  <title>KhangLift — Log In</title>
 </svelte:head>
 
 <div class="min-h-screen flex items-center justify-center px-4 py-12" style="background: #0A0A0B;">
@@ -17,14 +17,15 @@
     <div class="text-center mb-10">
       <div
         class="inline-flex items-center justify-center rounded-2xl mb-4"
-        style="width: 64px; height: 64px; background: #10B981;"
+        style="width: 64px; height: 64px; background: #84CC16;"
       >
         <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
           <path d="M6 4v16M18 4v16M3 8h3M18 8h3M3 16h3M18 16h3M6 12h12" />
         </svg>
       </div>
-      <h1 class="text-4xl font-black tracking-tight" style="color: #F1F1F3;">LIFT</h1>
-      <p class="mt-2 text-base" style="color: #9B9BA4;">Your 4-day hypertrophy program</p>
+      <h1 class="text-4xl font-black tracking-tight" style="color: #F1F1F3;">KhangLift</h1>
+      <p class="mt-1 text-base font-semibold" style="color: #84CC16;">Adaptive AI Fitness Coach</p>
+      <p class="mt-2 text-sm" style="color: #6B6B75;">Backed by 200+ peer-reviewed studies in exercise science, hypertrophy & periodization.</p>
     </div>
 
     <!-- Card -->
@@ -61,7 +62,7 @@
             placeholder="your_username"
             class="w-full rounded-xl px-4 py-3 text-base outline-none transition-all"
             style="background: #0A0A0B; border: 1px solid #2A2A2E; color: #F1F1F3;"
-            onfocus={(e) => (e.currentTarget.style.borderColor = '#10B981')}
+            onfocus={(e) => (e.currentTarget.style.borderColor = '#84CC16')}
             onblur={(e) => (e.currentTarget.style.borderColor = '#2A2A2E')}
           />
         </div>
@@ -78,7 +79,7 @@
             placeholder="••••••••"
             class="w-full rounded-xl px-4 py-3 text-base outline-none transition-all"
             style="background: #0A0A0B; border: 1px solid #2A2A2E; color: #F1F1F3;"
-            onfocus={(e) => (e.currentTarget.style.borderColor = '#10B981')}
+            onfocus={(e) => (e.currentTarget.style.borderColor = '#84CC16')}
             onblur={(e) => (e.currentTarget.style.borderColor = '#2A2A2E')}
           />
         </div>
@@ -88,7 +89,7 @@
           type="submit"
           disabled={loading}
           class="w-full rounded-xl py-3.5 text-base font-bold tracking-wide transition-all duration-200 active:scale-95"
-          style="background: #10B981; color: #fff; opacity: {loading ? 0.7 : 1};"
+          style="background: #84CC16; color: #fff; opacity: {loading ? 0.7 : 1};"
         >
           {loading ? 'Logging in…' : 'Log In'}
         </button>
@@ -98,7 +99,7 @@
     <!-- Onboarding link -->
     <p class="text-center mt-6 text-base" style="color: #9B9BA4;">
       First time?
-      <a href="/onboarding" class="font-semibold ml-1" style="color: #10B981;">
+      <a href="/onboarding" class="font-semibold ml-1" style="color: #84CC16;">
         Set up your account →
       </a>
     </p>

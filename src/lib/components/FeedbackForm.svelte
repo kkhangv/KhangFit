@@ -53,7 +53,7 @@
           style="
             width: 52px; height: 52px; flex: 1;
             background: {energyLevel === i + 1 ? 'rgba(16, 185, 129, 0.2)' : '#2A2A2E'};
-            border: 1px solid {energyLevel === i + 1 ? '#10B981' : 'transparent'};
+            border: 1px solid {energyLevel === i + 1 ? '#84CC16' : 'transparent'};
           "
           aria-label="Energy {i + 1}"
         >
@@ -73,13 +73,13 @@
           class="flex items-center gap-3 rounded-xl px-4 py-3 text-left transition-all duration-150"
           style="
             background: {overallDifficulty === i + 1 ? 'rgba(16, 185, 129, 0.15)' : '#2A2A2E'};
-            border: 1px solid {overallDifficulty === i + 1 ? '#10B981' : 'transparent'};
+            border: 1px solid {overallDifficulty === i + 1 ? '#84CC16' : 'transparent'};
             min-height: 48px;
           "
         >
           <span
             class="text-base font-semibold shrink-0"
-            style="color: {overallDifficulty === i + 1 ? '#10B981' : '#9B9BA4'};"
+            style="color: {overallDifficulty === i + 1 ? '#84CC16' : '#9B9BA4'};"
           >{i + 1}</span>
           <span class="text-base" style="color: {overallDifficulty === i + 1 ? '#F1F1F3' : '#9B9BA4'};">{label}</span>
         </button>
@@ -160,7 +160,7 @@
         background: #2A2A2E;
         color: #F1F1F3;
         border: 1px solid #2A2A2E;
-        caret-color: #10B981;
+        caret-color: #84CC16;
       "
     ></textarea>
   </section>
@@ -171,7 +171,7 @@
     disabled={!canSubmit}
     class="w-full rounded-xl py-4 text-base font-bold transition-all duration-200 active:scale-98"
     style="
-      background: {canSubmit ? '#10B981' : '#2A2A2E'};
+      background: {canSubmit ? '#84CC16' : '#2A2A2E'};
       color: {canSubmit ? '#fff' : '#6B6B75'};
       min-height: 56px;
     "

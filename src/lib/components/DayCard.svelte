@@ -23,7 +23,7 @@
 
   let borderColor = $derived(
     status === 'today'
-      ? '#10B981'
+      ? '#84CC16'
       : status === 'done'
       ? '#22C55E'
       : '#2A2A2E'
@@ -31,7 +31,7 @@
 
   let glowStyle = $derived(
     status === 'today'
-      ? 'box-shadow: 0 0 0 1px #10B981, 0 0 20px rgba(16, 185, 129, 0.25);'
+      ? 'box-shadow: 0 0 0 1px #84CC16, 0 0 20px rgba(16, 185, 129, 0.25);'
       : status === 'done'
       ? 'box-shadow: 0 0 0 1px #22C55E44;'
       : ''
@@ -82,7 +82,7 @@
       {:else if status === 'today'}
         <span
           class="text-sm font-semibold px-2 py-0.5 rounded-full"
-          style="background: rgba(16, 185, 129, 0.15); color: #10B981;"
+          style="background: rgba(16, 185, 129, 0.15); color: #84CC16;"
         >Today</span>
       {/if}
     </div>
@@ -99,7 +99,7 @@
 
     <!-- CTA for today -->
     {#if status === 'today'}
-      <span class="text-base font-semibold mt-1" style="color: #10B981;">Start Workout →</span>
+      <span class="text-base font-semibold mt-1" style="color: #84CC16;">Start Workout →</span>
     {/if}
   </div>
 
@@ -107,7 +107,7 @@
   <div class="px-4 pb-3">
     <ProgressBar
       value={completionPercent}
-      color={status === 'done' ? '#22C55E' : status === 'today' ? '#10B981' : '#6B6B75'}
+      color={status === 'done' ? '#22C55E' : status === 'today' ? '#84CC16' : '#6B6B75'}
     />
   </div>
 </button>

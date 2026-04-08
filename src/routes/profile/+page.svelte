@@ -55,7 +55,7 @@
 </script>
 
 <svelte:head>
-  <title>LIFT — Profile</title>
+  <title>KhangLift — Profile</title>
 </svelte:head>
 
 <div class="px-4 py-6 pb-24" style="max-width: 600px; margin: 0 auto;">
@@ -64,7 +64,7 @@
   <div class="flex items-center gap-3 mb-8">
     <div
       class="flex items-center justify-center rounded-full font-black text-xl"
-      style="width: 56px; height: 56px; background: #10B981; color: #fff; flex-shrink: 0;"
+      style="width: 56px; height: 56px; background: #84CC16; color: #fff; flex-shrink: 0;"
     >
       {name.charAt(0).toUpperCase()}
     </div>
@@ -91,7 +91,7 @@
       <button
         onclick={() => (editingStats = !editingStats)}
         class="text-xs font-semibold px-3 py-1.5 rounded-lg"
-        style="background: #2A2A2E; color: #10B981;"
+        style="background: #2A2A2E; color: #84CC16;"
       >
         {editingStats ? 'Cancel' : 'Edit'}
       </button>
@@ -181,7 +181,7 @@
         <button
           type="submit"
           class="w-full py-3 rounded-xl text-base font-bold"
-          style="background: #10B981; color: #fff;"
+          style="background: #84CC16; color: #fff;"
         >
           Save Stats
         </button>
@@ -240,7 +240,7 @@
         <polyline
           points={polyPoints}
           fill="none"
-          stroke="#10B981"
+          stroke="#84CC16"
           stroke-width="2"
           stroke-linecap="round"
           stroke-linejoin="round"
@@ -251,7 +251,7 @@
             cx={(i / (chartData.length - 1)) * 260}
             cy={chartY(d.w)}
             r="3"
-            fill="#10B981"
+            fill="#84CC16"
           />
         {/each}
       </svg>
@@ -269,7 +269,7 @@
       <button
         onclick={() => (editingConfig = !editingConfig)}
         class="text-xs font-semibold px-3 py-1.5 rounded-lg"
-        style="background: #2A2A2E; color: #10B981;"
+        style="background: #2A2A2E; color: #84CC16;"
       >
         {editingConfig ? 'Cancel' : 'Edit'}
       </button>
@@ -321,7 +321,7 @@
             />
             <div
               class="w-10 h-6 rounded-full transition-all"
-              style="background: {hasPeloton ? '#10B981' : '#2A2A2E'};"
+              style="background: {hasPeloton ? '#84CC16' : '#2A2A2E'};"
             ></div>
             <div
               class="absolute top-1 left-1 w-4 h-4 rounded-full transition-all"
@@ -333,7 +333,7 @@
         <button
           type="submit"
           class="w-full py-3 rounded-xl text-base font-bold"
-          style="background: #10B981; color: #fff;"
+          style="background: #84CC16; color: #fff;"
         >
           Save Settings
         </button>
@@ -352,7 +352,7 @@
         </div>
         <div class="flex justify-between">
           <span class="text-base" style="color: #9B9BA4;">Peloton</span>
-          <span class="text-base font-semibold" style="color: {config?.hasPeloton ? '#10B981' : '#9B9BA4'};">
+          <span class="text-base font-semibold" style="color: {config?.hasPeloton ? '#84CC16' : '#9B9BA4'};">
             {config?.hasPeloton ? 'Enabled' : 'Off'}
           </span>
         </div>
@@ -386,7 +386,7 @@
     </svg>
     Dashboard
   </a>
-  <a href="/profile" class="flex flex-col items-center gap-1 text-xs font-medium" style="color: #10B981;">
+  <a href="/profile" class="flex flex-col items-center gap-1 text-xs font-medium" style="color: #84CC16;">
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
       <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
     </svg>

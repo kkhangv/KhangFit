@@ -54,7 +54,7 @@
 
   const muscleGroupColors = {
     chest: '#F97316',
-    back: '#10B981',
+    back: '#84CC16',
     legs: '#22C55E',
     shoulders: '#8B5CF6',
     arms: '#F59E0B',
@@ -141,7 +141,7 @@
           class="rounded-full"
           style="
             width: 8px; height: 8px;
-            background: {s.done ? '#22C55E' : i === currentSetIndex ? '#10B981' : '#2A2A2E'};
+            background: {s.done ? '#22C55E' : i === currentSetIndex ? '#84CC16' : '#2A2A2E'};
             transition: background 0.3s ease;
           "
         ></span>

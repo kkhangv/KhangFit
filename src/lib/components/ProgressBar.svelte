@@ -1,5 +1,5 @@
 <script>
-  let { value = 0, label = '', color = '#10B981' } = $props();
+  let { value = 0, label = '', color = '#84CC16' } = $props();
 
   let clampedValue = $derived(Math.min(100, Math.max(0, value)));
 </script>

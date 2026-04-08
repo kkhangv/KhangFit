@@ -234,14 +234,14 @@
 
   const feedbackOptions = [
     { id: 'good', label: 'Good', color: '#22C55E' },
-    { id: 'too_easy', label: 'Easy', color: '#10B981' },
+    { id: 'too_easy', label: 'Easy', color: '#84CC16' },
     { id: 'too_hard', label: 'Hard', color: '#F97316' },
     { id: 'pain', label: 'Pain', color: '#EF4444' },
   ];
 </script>
 
 <svelte:head>
-  <title>LIFT — {dayData?.name || 'Workout'}</title>
+  <title>KhangLift — {dayData?.name || 'Workout'}</title>
 </svelte:head>
 
 <div style="position: fixed; inset: 0; max-width: 600px; margin: 0 auto; display: flex; flex-direction: column; overflow: hidden; padding: env(safe-area-inset-top, 16px) 16px env(safe-area-inset-bottom, 24px);">
@@ -265,7 +265,7 @@
     <!-- Pre-session readiness check -->
     {#if !readinessChecked && !doneToday}
       <div class="rounded-2xl p-5 mb-6" style="background: #161618; border: 1px solid #2A2A2E;">
-        <p class="text-lg font-bold mb-1 flex items-center gap-2" style="color: #F1F1F3;"><Zap size={18} style="color: #10B981;" />How are you feeling?</p>
+        <p class="text-lg font-bold mb-1 flex items-center gap-2" style="color: #F1F1F3;"><Zap size={18} style="color: #84CC16;" />How are you feeling?</p>
         <p class="text-sm mb-4" style="color: #6B6B75;">Quick check — helps us fine-tune your program.</p>
 
         {#each [
@@ -282,7 +282,7 @@
                   <button
                     onclick={() => readiness[item.key] = val}
                     class="w-11 h-11 rounded-xl text-base font-bold transition-all"
-                    style="background: {readiness[item.key] === val ? '#10B981' : '#1E1E22'}; color: {readiness[item.key] === val ? 'white' : '#6B6B75'};"
+                    style="background: {readiness[item.key] === val ? '#84CC16' : '#1E1E22'}; color: {readiness[item.key] === val ? 'white' : '#6B6B75'};"
                   >{val}</button>
                 {/each}
               </div>
@@ -300,7 +300,7 @@
           onclick={() => { readinessChecked = true; startTime = Date.now(); }}
           disabled={!readinessComplete}
           class="w-full py-4 rounded-xl text-base font-bold mt-2 active:scale-95 flex items-center justify-center gap-2"
-          style="background: {readinessComplete ? '#10B981' : '#2A2A2E'}; color: {readinessComplete ? 'white' : '#4B4B55'}; transition: all 0.2s;">
+          style="background: {readinessComplete ? '#84CC16' : '#2A2A2E'}; color: {readinessComplete ? 'white' : '#4B4B55'}; transition: all 0.2s;">
           <Play size={18} />Start Workout
         </button>
       </div>
@@ -314,7 +314,7 @@
           {completedSets} sets in {elapsedMinutes} minutes
         </p>
         <button onclick={() => goto('/dashboard')}
-          class="px-6 py-4 rounded-xl text-base font-bold active:scale-95" style="background: #10B981; color: white;">
+          class="px-6 py-4 rounded-xl text-base font-bold active:scale-95" style="background: #84CC16; color: white;">
           Back to Dashboard
         </button>
       </div>
@@ -322,7 +322,7 @@
     {:else}
       <!-- Progress bar -->
       <div class="mb-4">
-        <ProgressBar value={progressPercent} color={allDone ? '#22C55E' : '#10B981'} />
+        <ProgressBar value={progressPercent} color={allDone ? '#22C55E' : '#84CC16'} />
         <p class="text-sm mt-1 text-right" style="color: #6B6B75;">{completedSets}/{totalSets} sets</p>
       </div>
 
@@ -335,12 +335,12 @@
             onclick={() => jumpToExercise(idx)}
             class="flex items-center gap-1.5 px-3 py-2 rounded-full shrink-0 transition-all"
             style="
-              background: {isCurrent ? 'rgba(16,185,129,0.15)' : exDone ? 'rgba(34,197,94,0.1)' : '#1E1E22'};
-              border: 1px solid {isCurrent ? '#10B981' : exDone ? '#22C55E44' : '#2A2A2E'};
+              background: {isCurrent ? 'rgba(132,204,22,0.15)' : exDone ? 'rgba(34,197,94,0.1)' : '#1E1E22'};
+              border: 1px solid {isCurrent ? '#84CC16' : exDone ? '#22C55E44' : '#2A2A2E'};
             "
           >
-            <span class="w-2 h-2 rounded-full" style="background: {exDone ? '#22C55E' : isCurrent ? '#10B981' : '#4B4B55'};"></span>
-            <span class="text-sm font-medium whitespace-nowrap" style="color: {isCurrent ? '#10B981' : exDone ? '#22C55E' : '#6B6B75'};">
+            <span class="w-2 h-2 rounded-full" style="background: {exDone ? '#22C55E' : isCurrent ? '#84CC16' : '#4B4B55'};"></span>
+            <span class="text-sm font-medium whitespace-nowrap" style="color: {isCurrent ? '#84CC16' : exDone ? '#22C55E' : '#6B6B75'};">
               {ex.name.length > 16 ? ex.name.slice(0, 14) + '...' : ex.name}
             </span>
           </button>
@@ -362,9 +362,9 @@
                 onclick={() => sessionDifficulty = opt.id}
                 class="flex-1 py-3 rounded-xl text-base font-semibold transition-all"
                 style="
-                  background: {sessionDifficulty === opt.id ? '#10B981' : '#1E1E22'};
+                  background: {sessionDifficulty === opt.id ? '#84CC16' : '#1E1E22'};
                   color: {sessionDifficulty === opt.id ? '#fff' : '#9B9BA4'};
-                  border: 1px solid {sessionDifficulty === opt.id ? '#10B981' : '#2A2A2E'};
+                  border: 1px solid {sessionDifficulty === opt.id ? '#84CC16' : '#2A2A2E'};
                 "
               >
                 {opt.label}
@@ -388,7 +388,7 @@
 
       {:else if currentEx}
         <!-- ═══ SET WIZARD ═══ -->
-        <div class="rounded-2xl overflow-hidden" style="background: #161618; border: 1px solid {wizardPhase === 'rest' ? '#F97316' : '#10B981'};">
+        <div class="rounded-2xl overflow-hidden" style="background: #161618; border: 1px solid {wizardPhase === 'rest' ? '#F97316' : '#84CC16'};">
 
           <!-- Exercise header -->
           <div class="px-5 pt-5 pb-3">
@@ -405,8 +405,8 @@
 
             <!-- Collapsible exercise info -->
             {#if currentEx.cue}
-              <div class="rounded-lg px-3 py-2 mt-3" style="background: rgba(16,185,129,0.08); border: 1px solid rgba(16,185,129,0.2);">
-                <p class="text-sm flex items-start gap-1.5" style="color: #10B981;"><Info size={14} class="shrink-0 mt-0.5" />{currentEx.cue}</p>
+              <div class="rounded-lg px-3 py-2 mt-3" style="background: rgba(132,204,22,0.08); border: 1px solid rgba(132,204,22,0.2);">
+                <p class="text-sm flex items-start gap-1.5" style="color: #84CC16;"><Info size={14} class="shrink-0 mt-0.5" />{currentEx.cue}</p>
               </div>
             {/if}
           </div>
@@ -489,7 +489,7 @@
               <button
                 onclick={markSetDone}
                 class="w-full py-4 rounded-xl text-lg font-bold active:scale-95"
-                style="background: #10B981; color: white;"
+                style="background: #84CC16; color: white;"
               >
                 {isCardioEx ? 'Complete' : 'Done'}
               </button>

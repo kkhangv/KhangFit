@@ -96,7 +96,7 @@
       class="flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-semibold transition-all"
       style="
         background: {autoMode ? 'rgba(16, 185, 129, 0.15)' : '#2A2A2E'};
-        color: {autoMode ? '#10B981' : '#9B9BA4'};
+        color: {autoMode ? '#84CC16' : '#9B9BA4'};
         border: 1px solid {autoMode ? 'rgba(16, 185, 129, 0.4)' : '#2A2A2E'};
         min-height: 36px;
       "

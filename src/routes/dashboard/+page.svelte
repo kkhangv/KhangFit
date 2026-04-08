@@ -19,7 +19,7 @@
   let genError = $state('');
 
   const dayColors = {
-    today:    { bg: 'rgba(16,185,129,0.12)', border: '#10B981',  label: 'TODAY',    labelColor: '#10B981'  },
+    today:    { bg: 'rgba(132,204,22,0.12)', border: '#84CC16',  label: 'TODAY',    labelColor: '#84CC16'  },
     done:     { bg: 'rgba(34,197,94,0.08)',  border: '#22C55E',  label: 'DONE',     labelColor: '#22C55E'  },
     missed:   { bg: 'rgba(249,115,22,0.08)', border: '#F97316',  label: 'MISSED',   labelColor: '#F97316'  },
     upcoming: { bg: 'transparent',           border: '#2A2A2E',  label: 'UPCOMING', labelColor: '#9B9BA4'  }
@@ -156,7 +156,7 @@
 </script>
 
 <svelte:head>
-  <title>LIFT — Dashboard</title>
+  <title>KhangLift — Dashboard</title>
 </svelte:head>
 
 <div class="px-4 py-6 pb-24" style="max-width: 600px; margin: 0 auto;">
@@ -179,7 +179,7 @@
   <!-- Week info -->
   <div class="flex items-center justify-between mb-6 px-4 py-3 rounded-xl" style="background: #161618; border: 1px solid #2A2A2E;">
     <div>
-      <span class="text-xs font-semibold uppercase tracking-wider" style="color: {weekInfo?.isDeload ? '#F97316' : '#10B981'};">
+      <span class="text-xs font-semibold uppercase tracking-wider" style="color: {weekInfo?.isDeload ? '#F97316' : '#84CC16'};">
         Week {weekInfo?.weekNumber || 1} — {weekOverview?.theme || skeleton?.weekOverviews?.[0]?.theme || 'Training'}
       </span>
       <p class="text-xs mt-0.5" style="color: #6B6B75;">
@@ -212,7 +212,7 @@
         <button
           onclick={regenerateProgram}
           class="px-6 py-3 rounded-xl text-base font-bold flex items-center justify-center gap-2"
-          style="background: #10B981; color: white;">
+          style="background: #84CC16; color: white;">
           <Sparkles size={16} /> Generate Program
         </button>
       {/if}
@@ -220,8 +220,8 @@
 
   <!-- STATE 1.5: Skeleton exists, no days generated yet -->
   {:else if skeletonOnly}
-    <div class="rounded-2xl p-5 mb-4" style="background: linear-gradient(135deg, rgba(16,185,129,0.08), rgba(147,51,234,0.08)); border: 1px solid #10B981;">
-      <p class="text-xs font-bold uppercase tracking-wider mb-2" style="color: #10B981;">Your Program</p>
+    <div class="rounded-2xl p-5 mb-4" style="background: linear-gradient(135deg, rgba(132,204,22,0.08), rgba(147,51,234,0.08)); border: 1px solid #84CC16;">
+      <p class="text-xs font-bold uppercase tracking-wider mb-2" style="color: #84CC16;">Your Program</p>
       <p class="text-base font-bold mb-1" style="color: #F1F1F3;">{skeleton?.programName}</p>
       <p class="text-xs mb-3" style="color: #9B9BA4;">{skeleton?.programDescription}</p>
 
@@ -248,7 +248,7 @@
         <button
           onclick={generateDay1}
           class="w-full py-3 rounded-xl text-base font-bold flex items-center justify-center gap-2"
-          style="background: #10B981; color: white;">
+          style="background: #84CC16; color: white;">
           <Sparkles size={16} /> Generate Day 1
         </button>
       {/if}
@@ -256,9 +256,9 @@
 
   <!-- STATE 2: Day 1 only, not yet completed -->
   {:else if day1Only && !day1Complete}
-    <div class="rounded-2xl p-5 mb-4" style="background: linear-gradient(135deg, rgba(16,185,129,0.08), rgba(147,51,234,0.08)); border: 1px solid #10B981;">
+    <div class="rounded-2xl p-5 mb-4" style="background: linear-gradient(135deg, rgba(132,204,22,0.08), rgba(147,51,234,0.08)); border: 1px solid #84CC16;">
       <div class="flex items-center gap-2 mb-2">
-        <span class="text-xs font-bold px-2 py-0.5 rounded-full" style="background: rgba(16,185,129,0.2); color: #10B981;">CALIBRATION</span>
+        <span class="text-xs font-bold px-2 py-0.5 rounded-full" style="background: rgba(132,204,22,0.2); color: #84CC16;">CALIBRATION</span>
       </div>
       <p class="text-base font-semibold mb-1" style="color: #F1F1F3;">Complete Day 1 to calibrate your program</p>
       <p class="text-sm" style="color: #9B9BA4;">
@@ -271,9 +271,9 @@
       {@const status = dayStatuses[dayNum] || 'today'}
       {@const colors = dayColors[status]}
 
-      <div class="rounded-2xl overflow-hidden mb-3" style="background: #161618; border: 1px solid {colors.border}; box-shadow: 0 0 20px rgba(16,185,129,0.2);">
+      <div class="rounded-2xl overflow-hidden mb-3" style="background: #161618; border: 1px solid {colors.border}; box-shadow: 0 0 20px rgba(132,204,22,0.2);">
         <button onclick={() => goto(`/workout/${dayNum}`)} class="w-full text-left px-4 pt-4 pb-3 flex flex-col gap-1">
-          <span class="text-xs font-medium uppercase tracking-wider" style="color: #10B981;">Day {dayNum} — Test Day</span>
+          <span class="text-xs font-medium uppercase tracking-wider" style="color: #84CC16;">Day {dayNum} — Test Day</span>
           <span class="text-base font-bold" style="color: #F1F1F3;">{day.name}</span>
           <span class="text-base" style="color: #9B9BA4;">{day.focus}</span>
           <div class="flex items-center gap-3 mt-1.5">
@@ -282,7 +282,7 @@
               <span class="text-sm" style="color: #6B6B75;">~{day.targetDuration} min</span>
             {/if}
           </div>
-          <span class="text-base font-semibold mt-2" style="color: #10B981;">Start Workout →</span>
+          <span class="text-base font-semibold mt-2" style="color: #84CC16;">Start Workout →</span>
         </button>
       </div>
     {/each}
@@ -358,7 +358,7 @@
 
   <!-- STATE 4: Week not generated (Week 2+) -->
   {:else if hasPlan && !weekGenerated}
-    <div class="rounded-2xl p-6 mb-6" style="background: #161618; border: 1px solid #10B981;">
+    <div class="rounded-2xl p-6 mb-6" style="background: #161618; border: 1px solid #84CC16;">
       {#if deloadRecommended}
         <div class="rounded-lg p-3 mb-4" style="background: rgba(249,115,22,0.1); border: 1px solid #F97316;">
           <p class="text-xs font-bold uppercase mb-1" style="color: #F97316;">Recovery Recommended</p>
@@ -390,7 +390,7 @@
         <button
           onclick={generateCurrentWeek}
           class="w-full py-3 rounded-xl text-base font-bold flex items-center justify-center gap-2"
-          style="background: #10B981; color: white;">
+          style="background: #84CC16; color: white;">
           <Sparkles size={16} /> Generate Week {weekInfo?.weekNumber} Based on Your Progress
         </button>
       {/if}
@@ -406,7 +406,7 @@
 
         <div
           class="rounded-2xl overflow-hidden flex flex-col relative transition-all duration-300"
-          style="background: #161618; border: 1px solid {colors.border}; {status === 'today' ? 'box-shadow: 0 0 20px rgba(16,185,129,0.2);' : ''}"
+          style="background: #161618; border: 1px solid {colors.border}; {status === 'today' ? 'box-shadow: 0 0 20px rgba(132,204,22,0.2);' : ''}"
         >
           <div class="absolute top-3 right-3 flex items-center gap-2">
             {#if status !== 'done' && status !== 'missed'}
@@ -448,7 +448,7 @@
             </div>
 
             {#if status === 'today'}
-              <span class="text-base font-semibold mt-2" style="color: #10B981;">Start Workout →</span>
+              <span class="text-base font-semibold mt-2" style="color: #84CC16;">Start Workout →</span>
             {/if}
           </button>
         </div>

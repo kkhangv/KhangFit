@@ -134,7 +134,31 @@ Core: Plank, hollow body hold, leg raise, mountain climber, dead bug, bird-dog
 7. Honor the user's session duration constraint. If time is limited, use more drop sets and supersets to compress volume.
 
 8. Include the user's free-form preferences verbatim — these override defaults when they conflict.
-9. Keep all text fields short — plain, direct language. No filler words.`;
+9. Keep all text fields short — plain, direct language. No filler words.
+
+### Exercise Classification (CRITICAL)
+- Every exercise MUST have an exerciseType: "free-weight", "machine", "bodyweight", "cardio", or "stretch".
+  - "free-weight": barbell, dumbbell, kettlebell exercises
+  - "machine": cable, plate-loaded machine, smith machine, pec deck, leg press, any gym machine
+  - "bodyweight": push-ups, pull-ups, dips, planks, etc. (no external load required)
+  - "cardio": treadmill, bike, rower, elliptical, jump rope, etc.
+  - "stretch": mobility drills, static stretches, PT exercises, foam rolling cues
+- For cardio exercises: set reps to 0, isCardio to true.
+- For stretch exercises: set reps to 0, rest to 0, isMobility to true. RPE 3-5.
+
+### Starting Weight Estimation
+- For every free-weight and machine exercise, provide a suggestedWeight (in lbs).
+- Estimate conservatively from the user's body weight and training age using population averages:
+  - Beginner male ~150lbs: bench ~65-85, squat ~95-115, row ~65-85, OHP ~45-55, curl ~25-35
+  - Beginner female ~130lbs: bench ~35-45, squat ~55-75, row ~35-45, OHP ~25-30, curl ~15-20
+  - Scale proportionally to bodyweight. More experienced lifters get higher estimates.
+  - When in doubt, go lighter — the RPE system will auto-adjust upward.
+- Set suggestedWeight to null for bodyweight, cardio, and stretch exercises.
+
+### Exercise Descriptions
+- Every exercise MUST have a "description" field: one plain sentence explaining how to do it (for a beginner).
+- Example: "Lie on a flat bench, grip the bar slightly wider than shoulders, lower to chest and press up."`;
+
 
 // ─── Plan JSON Schema for Structured Outputs ────────────────────────────────
 
@@ -144,12 +168,22 @@ const EXERCISE_SCHEMA = {
     name: { type: 'string', description: 'Exercise name' },
     equipment: { type: 'string', description: 'Equipment needed' },
     muscleGroup: { type: 'string', description: 'Primary muscle group targeted' },
+    exerciseType: {
+      type: 'string',
+      enum: ['free-weight', 'machine', 'bodyweight', 'cardio', 'stretch'],
+      description: 'Exercise category: free-weight (barbell/dumbbell), machine (cable/machine/plate-loaded), bodyweight (no external load), cardio (treadmill/bike/rower), stretch (mobility/flexibility/PT)'
+    },
     sets: { type: 'integer', description: 'Number of sets' },
-    reps: { type: 'integer', description: 'Exact rep target (integer, NOT a range)' },
-    rpe: { type: 'number', description: 'Target RPE (6-10)' },
-    rest: { type: 'integer', description: 'Rest between sets in seconds' },
+    reps: { type: 'integer', description: 'Exact rep target (integer, NOT a range). For cardio/stretch use 0.' },
+    rpe: { type: 'number', description: 'Target RPE (6-10). For stretch use 3-5.' },
+    rest: { type: 'integer', description: 'Rest between sets in seconds. For stretch use 0.' },
+    suggestedWeight: {
+      anyOf: [{ type: 'number' }, { type: 'null' }],
+      description: 'Conservative starting weight in lbs estimated from user bodyweight and training age. null for bodyweight/cardio/stretch exercises.'
+    },
     cue: { type: 'string', description: 'Form cue — 1 short sentence' },
     tip: { type: 'string', description: 'Key tip — 1 short sentence' },
+    description: { type: 'string', description: 'How to perform this exercise — 1 plain sentence for a beginner' },
     technique: {
       anyOf: [{ type: 'string' }, { type: 'null' }],
       description: 'Advanced technique on final set: "drop-set", "rest-pause", "superset", or null'
@@ -171,7 +205,7 @@ const EXERCISE_SCHEMA = {
       description: 'True if this is a PT/mobility exercise'
     }
   },
-  required: ['name', 'equipment', 'muscleGroup', 'sets', 'reps', 'rpe', 'rest', 'cue', 'tip', 'technique', 'techniqueNote', 'supersetWith', 'isCardio', 'isMobility'],
+  required: ['name', 'equipment', 'muscleGroup', 'exerciseType', 'sets', 'reps', 'rpe', 'rest', 'suggestedWeight', 'cue', 'tip', 'description', 'technique', 'techniqueNote', 'supersetWith', 'isCardio', 'isMobility'],
   additionalProperties: false
 };
 
@@ -359,7 +393,7 @@ function buildUserMessage(profile, history) {
   return parts.join('\n');
 }
 
-function buildDayMessage(profile, currentDay, history) {
+function buildDayMessage(profile, currentDay, history, reason) {
   const parts = [];
 
   parts.push(`Regenerate ONLY Day ${currentDay.dayNumber} (${currentDay.name}) of the user's program.`);
@@ -367,6 +401,11 @@ function buildDayMessage(profile, currentDay, history) {
 
   for (const ex of currentDay.exercises) {
     parts.push(`  - ${ex.name} (${ex.muscleGroup})`);
+  }
+
+  if (reason) {
+    parts.push(`\n## USER'S REASON FOR REGENERATING`);
+    parts.push(reason);
   }
 
   parts.push(`\nUser profile:`);
@@ -448,6 +487,7 @@ Target duration: ${day1?.targetDuration || profile.sessionDuration || 60} minute
 - Include a mix of compound and isolation movements to assess strength across muscle groups
 - The user's performance data from this session will calibrate the rest of their program
 - Choose exercises that establish clear weight baselines for future sessions
+- IMPORTANT: Estimate a suggestedWeight for every free-weight and machine exercise based on the user's body weight and training age. Err on the lighter side — the RPE system will adjust upward.
 
 ## USER PROFILE
 ${buildProfileBlock(profile)}
@@ -700,8 +740,8 @@ export async function generatePlan(profile, history = null) {
  * @param {object} [history] - Aggregated workout history
  * @returns {Promise<object>} A single day object matching DAY_SCHEMA
  */
-export async function generateDay(profile, currentDay, history = null) {
-  const message = buildDayMessage(profile, currentDay, history);
+export async function generateDay(profile, currentDay, history = null, reason = null) {
+  const message = buildDayMessage(profile, currentDay, history, reason);
   return callClaude(message, DAY_SCHEMA, 4096);
 }
 

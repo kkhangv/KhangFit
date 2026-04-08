@@ -25,7 +25,24 @@
       </div>
       <h1 class="text-4xl font-black tracking-tight" style="color: #F1F1F3;">KhangLift</h1>
       <p class="mt-1 text-base font-semibold" style="color: #84CC16;">Adaptive AI Fitness Coach</p>
-      <p class="mt-2 text-sm" style="color: #6B6B75;">Backed by 200+ peer-reviewed studies in exercise science, hypertrophy & periodization.</p>
+      <div class="mt-4 flex flex-col gap-2 text-left" style="max-width: 320px; margin: 0 auto;">
+        <div class="flex items-center gap-2.5">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#84CC16" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          <span class="text-sm" style="color: #9B9BA4;">Auto rest timer — just train, we'll count</span>
+        </div>
+        <div class="flex items-center gap-2.5">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#84CC16" stroke-width="2" stroke-linecap="round"><path d="M12 20V10M6 20V4M18 20v-6"/></svg>
+          <span class="text-sm" style="color: #9B9BA4;">Weights adjust in real-time to how you feel</span>
+        </div>
+        <div class="flex items-center gap-2.5">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#84CC16" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+          <span class="text-sm" style="color: #9B9BA4;">Every day is planned — never guess again</span>
+        </div>
+        <div class="flex items-center gap-2.5">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#84CC16" stroke-width="2" stroke-linecap="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+          <span class="text-sm" style="color: #9B9BA4;">Program adapts each week from your data</span>
+        </div>
+      </div>
     </div>
 
     <!-- Card -->

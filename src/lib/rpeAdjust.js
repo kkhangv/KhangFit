@@ -2,21 +2,52 @@
 // Pure deterministic rules — no AI calls.
 
 /**
- * Detect whether an exercise should use cardio tracking (duration) vs strength (weight/reps).
+ * Color and label config for each exercise type.
+ */
+export const EXERCISE_TYPE_CONFIG = {
+  'free-weight': { color: '#84CC16', label: 'Free Weight', bgAlpha: 'rgba(132,204,22,0.12)' },
+  'machine':     { color: '#3B82F6', label: 'Machine',     bgAlpha: 'rgba(59,130,246,0.12)' },
+  'bodyweight':  { color: '#A855F7', label: 'Bodyweight',  bgAlpha: 'rgba(168,85,247,0.12)' },
+  'cardio':      { color: '#F97316', label: 'Cardio',      bgAlpha: 'rgba(249,115,22,0.12)' },
+  'stretch':     { color: '#06B6D4', label: 'Stretch',     bgAlpha: 'rgba(6,182,212,0.12)' }
+};
+
+/**
+ * Detect exercise input mode from exerciseType field (preferred) or fallback heuristics.
+ * Returns: { type, metric, unit, step, skipRPE, skipRest }
  */
 export function getExerciseInputType(exercise) {
-  if (!exercise) return { type: 'strength', metric: 'weight', unit: 'lbs', step: 2.5 };
+  if (!exercise) return { type: 'free-weight', metric: 'weight', unit: 'lbs', step: 2.5, skipRPE: false, skipRest: false };
 
+  // Use AI-classified exerciseType when available
+  if (exercise.exerciseType) {
+    switch (exercise.exerciseType) {
+      case 'cardio':
+        return { type: 'cardio', metric: 'duration', unit: 'min', step: 1, skipRPE: false, skipRest: true };
+      case 'stretch':
+        return { type: 'stretch', metric: 'duration', unit: 'sec', step: 5, skipRPE: true, skipRest: true };
+      case 'bodyweight':
+        return { type: 'bodyweight', metric: 'reps', unit: 'reps', step: 1, skipRPE: false, skipRest: false };
+      case 'machine':
+        return { type: 'machine', metric: 'weight', unit: 'lbs', step: 5, skipRPE: false, skipRest: false };
+      case 'free-weight':
+      default:
+        return { type: 'free-weight', metric: 'weight', unit: 'lbs', step: 2.5, skipRPE: false, skipRest: false };
+    }
+  }
+
+  // Fallback: legacy detection from equipment/name strings
   const equip = (exercise.equipment || '').toLowerCase();
   const name = (exercise.name || '').toLowerCase();
   const isCardioEquip = ['peloton', 'bike', 'cycle', 'treadmill', 'rower', 'rowing', 'elliptical', 'stairmaster'].some(k => equip.includes(k) || name.includes(k));
 
-  // Only pure cardio equipment gets duration tracking.
-  // Exercises with reps > 0 are always strength (even if marked isCardio/isMobility).
   if (isCardioEquip || (exercise.isCardio && (!exercise.reps || exercise.reps === 0))) {
-    return { type: 'cardio', metric: 'duration', unit: 'min', step: 1 };
+    return { type: 'cardio', metric: 'duration', unit: 'min', step: 1, skipRPE: false, skipRest: true };
   }
-  return { type: 'strength', metric: 'weight', unit: 'lbs', step: 2.5 };
+  if (exercise.isMobility && (!exercise.reps || exercise.reps === 0)) {
+    return { type: 'stretch', metric: 'duration', unit: 'sec', step: 5, skipRPE: true, skipRest: true };
+  }
+  return { type: 'free-weight', metric: 'weight', unit: 'lbs', step: 2.5, skipRPE: false, skipRest: false };
 }
 
 /**

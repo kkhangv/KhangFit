@@ -41,7 +41,7 @@ export const config = { maxDuration: 60 };
 export async function POST({ request, cookies }) {
   const username = requireAuth(cookies);
   const body = await request.json();
-  const { mode, profile, currentDay, weekNumber } = body;
+  const { mode, profile, currentDay, weekNumber, reason } = body;
 
   const allowed = await checkRateLimit(username);
   if (!allowed) {
@@ -142,7 +142,7 @@ export async function POST({ request, cookies }) {
       const logs = await getWorkoutHistory(username);
       const history = buildHistorySummary(logs);
 
-      const newDay = await generateDay(profile, currentDay, history);
+      const newDay = await generateDay(profile, currentDay, history, reason);
 
       // Update in per-week storage
       const weekData = await getPlanWeek(username, wk);

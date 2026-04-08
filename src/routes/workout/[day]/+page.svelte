@@ -3,7 +3,7 @@
   import ProgressBar from '$lib/components/ProgressBar.svelte';
   import RestTimer from '$lib/components/RestTimer.svelte';
   import RPEFeedback from '$lib/components/RPEFeedback.svelte';
-  import { getExerciseInputType } from '$lib/rpeAdjust.js';
+  import { getExerciseInputType, EXERCISE_TYPE_CONFIG } from '$lib/rpeAdjust.js';
   import { ChevronLeft, Clock, Zap, Info, Play, CheckCircle2 } from 'lucide-svelte';
 
   let { data } = $props();
@@ -21,7 +21,7 @@
         Object.fromEntries(
           Array.from({ length: ex.sets || 3 }, (_, si) => [
             si,
-            { done: false, weight: 0, reps: ex.reps || 8, rpe: null }
+            { done: false, weight: ex.suggestedWeight || 0, reps: ex.reps || 8, rpe: null }
           ])
         )
       ])
@@ -54,6 +54,11 @@
   let currentEx = $derived(exercises[currentExIdx]);
   let currentExType = $derived(getExerciseInputType(currentEx));
   let isCardioEx = $derived(currentExType?.type === 'cardio');
+  let isStretchEx = $derived(currentExType?.type === 'stretch');
+  let isBodyweightEx = $derived(currentExType?.type === 'bodyweight');
+  let skipRPE = $derived(currentExType?.skipRPE ?? false);
+  let skipRest = $derived(currentExType?.skipRest ?? false);
+  let exTypeColor = $derived(EXERCISE_TYPE_CONFIG[currentExType?.type]?.color || '#84CC16');
   let currentSetData = $derived(setStates[currentExIdx]?.[currentSetIdx] || { done: false, weight: 0, reps: 8, rpe: null });
   let totalExSets = $derived(currentEx?.sets || 3);
   let isLastSet = $derived(currentSetIdx >= totalExSets - 1);
@@ -99,8 +104,8 @@
   function markSetDone() {
     setStates[currentExIdx][currentSetIdx].done = true;
 
-    // For cardio, skip RPE and rest
-    if (isCardioEx) {
+    // For cardio/stretch, skip RPE and rest
+    if (skipRPE || isCardioEx) {
       if (isLastSet) {
         wizardPhase = 'exercise-feedback';
       } else {
@@ -129,8 +134,12 @@
       return;
     }
 
-    // Otherwise, show rest timer (skip for last set since exercise feedback follows)
-    wizardPhase = 'rest';
+    // Show rest timer unless exercise type skips it
+    if (skipRest) {
+      advanceToNextSet();
+    } else {
+      wizardPhase = 'rest';
+    }
   }
 
   function handleExerciseFeedback(fb) {
@@ -331,16 +340,17 @@
         {#each exercises as ex, idx}
           {@const exDone = isExDone(idx)}
           {@const isCurrent = idx === currentExIdx}
+          {@const typeConf = EXERCISE_TYPE_CONFIG[ex.exerciseType] || EXERCISE_TYPE_CONFIG[getExerciseInputType(ex).type] || EXERCISE_TYPE_CONFIG['free-weight']}
           <button
             onclick={() => jumpToExercise(idx)}
             class="flex items-center gap-1.5 px-3 py-2 rounded-full shrink-0 transition-all"
             style="
-              background: {isCurrent ? 'rgba(132,204,22,0.15)' : exDone ? 'rgba(34,197,94,0.1)' : '#1E1E22'};
-              border: 1px solid {isCurrent ? '#84CC16' : exDone ? '#22C55E44' : '#2A2A2E'};
+              background: {isCurrent ? typeConf.bgAlpha : exDone ? 'rgba(34,197,94,0.1)' : '#1E1E22'};
+              border: 1px solid {isCurrent ? typeConf.color : exDone ? '#22C55E44' : '#2A2A2E'};
             "
           >
-            <span class="w-2 h-2 rounded-full" style="background: {exDone ? '#22C55E' : isCurrent ? '#84CC16' : '#4B4B55'};"></span>
-            <span class="text-sm font-medium whitespace-nowrap" style="color: {isCurrent ? '#84CC16' : exDone ? '#22C55E' : '#6B6B75'};">
+            <span class="w-2 h-2 rounded-full" style="background: {exDone ? '#22C55E' : isCurrent ? typeConf.color : '#4B4B55'};"></span>
+            <span class="text-sm font-medium whitespace-nowrap" style="color: {isCurrent ? typeConf.color : exDone ? '#22C55E' : '#6B6B75'};">
               {ex.name.length > 16 ? ex.name.slice(0, 14) + '...' : ex.name}
             </span>
           </button>
@@ -388,25 +398,45 @@
 
       {:else if currentEx}
         <!-- ═══ SET WIZARD ═══ -->
-        <div class="rounded-2xl overflow-hidden" style="background: #161618; border: 1px solid {wizardPhase === 'rest' ? '#F97316' : '#84CC16'};">
+        {@const typeConfig = EXERCISE_TYPE_CONFIG[currentExType?.type] || EXERCISE_TYPE_CONFIG['free-weight']}
+        <div class="rounded-2xl overflow-hidden" style="background: #161618; border: 1px solid {wizardPhase === 'rest' ? '#F97316' : exTypeColor};">
 
           <!-- Exercise header -->
           <div class="px-5 pt-5 pb-3">
-            <p class="text-xs font-semibold uppercase tracking-wider mb-1" style="color: #6B6B75;">
-              Exercise {currentExIdx + 1} of {exercises.length}
-            </p>
+            <div class="flex items-center gap-2 mb-1">
+              <p class="text-xs font-semibold uppercase tracking-wider" style="color: #6B6B75;">
+                Exercise {currentExIdx + 1} of {exercises.length}
+              </p>
+              <span class="text-xs font-bold px-2 py-0.5 rounded-full" style="background: {typeConfig.bgAlpha}; color: {typeConfig.color};">
+                {typeConfig.label}
+              </span>
+            </div>
             <h2 class="text-xl font-black" style="color: #F1F1F3;">{currentEx.name}</h2>
             <p class="text-base mt-0.5" style="color: #9B9BA4;">
               {currentEx.muscleGroup}
-              {#if !isCardioEx}
+              {#if !isCardioEx && !isStretchEx}
                 — {currentEx.sets} sets of {currentEx.reps} reps
               {/if}
             </p>
 
-            <!-- Collapsible exercise info -->
-            {#if currentEx.cue}
-              <div class="rounded-lg px-3 py-2 mt-3" style="background: rgba(132,204,22,0.08); border: 1px solid rgba(132,204,22,0.2);">
-                <p class="text-sm flex items-start gap-1.5" style="color: #84CC16;"><Info size={14} class="shrink-0 mt-0.5" />{currentEx.cue}</p>
+            <!-- Exercise description (how-to) -->
+            {#if currentEx.description}
+              <p class="text-sm mt-2" style="color: #6B6B75;">{currentEx.description}</p>
+            {/if}
+
+            <!-- Form cue + tip -->
+            {#if currentEx.cue || currentEx.tip}
+              <div class="flex flex-col gap-1.5 mt-3">
+                {#if currentEx.cue}
+                  <div class="rounded-lg px-3 py-2" style="background: {typeConfig.bgAlpha}; border: 1px solid {typeConfig.color}33;">
+                    <p class="text-sm flex items-start gap-1.5" style="color: {typeConfig.color};"><Info size={14} class="shrink-0 mt-0.5" />{currentEx.cue}</p>
+                  </div>
+                {/if}
+                {#if currentEx.tip}
+                  <div class="rounded-lg px-3 py-2" style="background: rgba(155,155,164,0.06); border: 1px solid rgba(155,155,164,0.15);">
+                    <p class="text-sm flex items-start gap-1.5" style="color: #9B9BA4;"><Zap size={14} class="shrink-0 mt-0.5" />{currentEx.tip}</p>
+                  </div>
+                {/if}
               </div>
             {/if}
           </div>
@@ -415,10 +445,26 @@
           {#if wizardPhase === 'input'}
             <div class="px-5 pb-5">
               <p class="text-base font-bold mb-4" style="color: #9B9BA4;">
-                {isCardioEx ? 'Session' : `Set ${currentSetIdx + 1} of ${totalExSets}`}
+                {isCardioEx ? 'Session' : isStretchEx ? 'Hold' : `Set ${currentSetIdx + 1} of ${totalExSets}`}
               </p>
 
-              {#if isCardioEx}
+              {#if isStretchEx}
+                <!-- Stretch: hold duration in seconds -->
+                <div class="flex flex-col items-center gap-4 mb-5">
+                  <p class="text-sm" style="color: #6B6B75;">Hold (seconds)</p>
+                  <div class="flex items-center gap-4">
+                    <button onclick={() => adjustReps(-5)}
+                      class="w-14 h-14 rounded-xl text-xl font-bold active:scale-90"
+                      style="background: #2A2A2E; color: #9B9BA4;">-5</button>
+                    <span class="text-4xl font-black tabular-nums" style="color: #F1F1F3; min-width: 80px; text-align: center;">
+                      {currentSetData.reps}
+                    </span>
+                    <button onclick={() => adjustReps(5)}
+                      class="w-14 h-14 rounded-xl text-xl font-bold active:scale-90"
+                      style="background: #2A2A2E; color: #9B9BA4;">+5</button>
+                  </div>
+                </div>
+              {:else if isCardioEx}
                 <!-- Cardio: just duration -->
                 <div class="flex flex-col items-center gap-4 mb-5">
                   <p class="text-sm" style="color: #6B6B75;">Duration (minutes)</p>
@@ -434,12 +480,46 @@
                       style="background: #2A2A2E; color: #9B9BA4;">+5</button>
                   </div>
                 </div>
+              {:else if isBodyweightEx}
+                <!-- Bodyweight: reps only (optional added weight) -->
+                <div class="flex flex-col gap-5 mb-5">
+                  <div>
+                    <p class="text-sm mb-2 text-center" style="color: #6B6B75;">Reps (target: {currentEx.reps})</p>
+                    <div class="flex items-center justify-center gap-4">
+                      <button onclick={() => adjustReps(-1)}
+                        class="w-14 h-14 rounded-xl text-xl font-bold active:scale-90"
+                        style="background: #2A2A2E; color: #9B9BA4;">-1</button>
+                      <span class="text-3xl font-black tabular-nums" style="color: #F1F1F3; min-width: 70px; text-align: center;">
+                        {currentSetData.reps}
+                      </span>
+                      <button onclick={() => adjustReps(1)}
+                        class="w-14 h-14 rounded-xl text-xl font-bold active:scale-90"
+                        style="background: #2A2A2E; color: #9B9BA4;">+1</button>
+                    </div>
+                  </div>
+                  {#if currentSetData.weight > 0}
+                    <div>
+                      <p class="text-sm mb-2 text-center" style="color: #6B6B75;">Added weight (lbs)</p>
+                      <div class="flex items-center justify-center gap-3">
+                        <button onclick={() => adjustWeight(-5)}
+                          class="w-12 h-12 rounded-xl text-base font-bold active:scale-90"
+                          style="background: #2A2A2E; color: #9B9BA4;">-5</button>
+                        <span class="text-2xl font-black tabular-nums" style="color: #F1F1F3; min-width: 70px; text-align: center;">
+                          {currentSetData.weight}
+                        </span>
+                        <button onclick={() => adjustWeight(5)}
+                          class="w-12 h-12 rounded-xl text-base font-bold active:scale-90"
+                          style="background: #2A2A2E; color: #9B9BA4;">+5</button>
+                      </div>
+                    </div>
+                  {/if}
+                </div>
               {:else}
-                <!-- Strength: weight + reps -->
+                <!-- Strength (free-weight / machine): weight + reps -->
                 <div class="flex flex-col gap-5 mb-5">
                   <!-- Weight stepper -->
                   <div>
-                    <p class="text-sm mb-2 text-center" style="color: #6B6B75;">Weight (lbs)</p>
+                    <p class="text-sm mb-2 text-center" style="color: #6B6B75;">Weight (lbs){currentSetIdx === 0 && currentEx.suggestedWeight ? '' : ''}</p>
                     <div class="flex items-center justify-center gap-3">
                       <button onclick={() => adjustWeight(-5)}
                         class="w-14 h-14 rounded-xl text-lg font-bold active:scale-90"
@@ -457,6 +537,9 @@
                         class="w-14 h-14 rounded-xl text-lg font-bold active:scale-90"
                         style="background: #2A2A2E; color: #9B9BA4;">+5</button>
                     </div>
+                    {#if currentSetIdx === 0 && currentEx.suggestedWeight}
+                      <p class="text-xs text-center mt-1.5" style="color: #6B6B75;">Suggested: {currentEx.suggestedWeight} lbs</p>
+                    {/if}
                   </div>
 
                   <!-- Reps stepper -->
@@ -489,9 +572,9 @@
               <button
                 onclick={markSetDone}
                 class="w-full py-4 rounded-xl text-lg font-bold active:scale-95"
-                style="background: #84CC16; color: white;"
+                style="background: {exTypeColor}; color: white;"
               >
-                {isCardioEx ? 'Complete' : 'Done'}
+                {isCardioEx ? 'Complete' : isStretchEx ? 'Done' : 'Done'}
               </button>
             </div>
 

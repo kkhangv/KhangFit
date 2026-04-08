@@ -6,85 +6,49 @@
     targetRPE = 8,
     targetReps = 8,
     actualReps = $bindable(0),
+    isCardio = false,
     onSubmit
   } = $props();
 
-  let selectedRPE = $state(null);
-  let suggestion = $state(null);
-  let showSuggestion = $state(false);
-
-  const options = [
-    { rpe: 7, label: 'Too Easy', icon: '🟢', color: '#22C55E' },
-    { rpe: 8, label: 'Just Right', icon: '🟡', color: '#EAB308' },
-    { rpe: 9, label: 'Hard', icon: '🟠', color: '#F97316' },
-    { rpe: 10, label: 'Maxed Out', icon: '🔴', color: '#EF4444' },
-  ];
+  let options = $derived(isCardio
+    ? [
+        { rpe: 7, label: 'Easy', desc: 'Could keep going', color: '#22C55E' },
+        { rpe: 8, label: 'Good', desc: 'Right effort', color: '#EAB308' },
+        { rpe: 9, label: 'Hard', desc: 'Pushed it', color: '#F97316' },
+      ]
+    : [
+        { rpe: 7, label: 'Could do 3 more', desc: 'Felt light', color: '#22C55E' },
+        { rpe: 8, label: 'Could do 2 more', desc: 'Solid effort', color: '#EAB308' },
+        { rpe: 9, label: 'Could do 1 more', desc: 'Very hard', color: '#F97316' },
+        { rpe: 10, label: 'Nothing left', desc: 'Max effort', color: '#EF4444' },
+      ]);
 
   function selectRPE(rpe) {
-    selectedRPE = rpe;
     const reps = actualReps || targetReps;
-    suggestion = getWeightSuggestion(currentWeight, rpe, targetRPE, targetReps, reps);
-    showSuggestion = true;
-  }
-
-  function confirm() {
+    const suggestion = getWeightSuggestion(currentWeight, rpe, targetRPE, targetReps, reps, isCardio);
     onSubmit?.({
-      rpe: selectedRPE,
+      rpe,
       suggestedWeight: suggestion?.suggestedWeight ?? currentWeight,
       adjustment: suggestion?.adjustment ?? 'maintain'
     });
-    // Reset
-    selectedRPE = null;
-    suggestion = null;
-    showSuggestion = false;
   }
 </script>
 
-<div class="flex flex-col gap-3">
-  <!-- RPE buttons -->
-  <div class="flex gap-2">
-    {#each options as opt}
+<div class="flex flex-col gap-2">
+  <p class="text-sm font-semibold text-center" style="color: #9B9BA4;">How hard was that?</p>
+  <div class="flex flex-col gap-2">
+    {#each options as opt (opt.rpe)}
       <button
         type="button"
         onclick={() => selectRPE(opt.rpe)}
-        class="flex-1 flex flex-col items-center gap-1 py-2.5 rounded-xl text-xs font-semibold transition-all"
-        style="
-          background: {selectedRPE === opt.rpe ? `${opt.color}20` : '#1E1E22'};
-          color: {selectedRPE === opt.rpe ? opt.color : '#6B6B75'};
-          border: 1px solid {selectedRPE === opt.rpe ? opt.color : '#2A2A2E'};
-        "
+        class="w-full flex items-center justify-between px-5 py-4 rounded-xl text-left transition-all active:scale-95"
+        style="background: #1E1E22; border: 2px solid #2A2A2E;"
       >
-        <span class="text-base">{opt.icon}</span>
-        <span>{opt.label}</span>
+        <div>
+          <span class="text-base font-bold" style="color: {opt.color};">{opt.label}</span>
+          <span class="text-sm ml-2" style="color: #6B6B75;">{opt.desc}</span>
+        </div>
       </button>
     {/each}
   </div>
-
-  <!-- Weight suggestion -->
-  {#if showSuggestion && suggestion}
-    <div
-      class="flex items-center justify-between px-4 py-3 rounded-xl"
-      style="
-        background: {suggestion.adjustment === 'increase' ? 'rgba(34, 197, 94, 0.1)' : suggestion.adjustment === 'decrease' ? 'rgba(239, 68, 68, 0.1)' : 'rgba(234, 179, 8, 0.1)'};
-        border: 1px solid {suggestion.adjustment === 'increase' ? '#22C55E44' : suggestion.adjustment === 'decrease' ? '#EF444444' : '#EAB30844'};
-      "
-    >
-      <div class="flex flex-col">
-        <span class="text-sm font-semibold" style="color: #F1F1F3;">
-          Next set: {suggestion.suggestedWeight} lbs
-        </span>
-        <span class="text-xs" style="color: #9B9BA4;">
-          {suggestion.message}
-        </span>
-      </div>
-      <button
-        type="button"
-        onclick={confirm}
-        class="px-4 py-2 rounded-lg text-sm font-bold"
-        style="background: #3B82F6; color: white;"
-      >
-        Got it
-      </button>
-    </div>
-  {/if}
 </div>

@@ -529,3 +529,56 @@ export function getWeeklyIntensity(model, weekNumber, dayType = null) {
 
   return null;
 }
+
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// SECTION 8 — AUTOREGULATED DELOAD TRIGGERS
+// ═══════════════════════════════════════════════════════════════════════════════
+
+/**
+ * Evaluate whether a deload is recommended based on accumulated fatigue indicators.
+ * Returns { shouldDeload: boolean, reasons: string[] }
+ *
+ * @param {object} historySummary - Enhanced history summary from buildHistorySummary()
+ * @param {number} currentWeekNumber - Which week we're about to generate
+ * @returns {{ shouldDeload: boolean, reasons: string[] }}
+ */
+export function evaluateDeloadTriggers(historySummary, currentWeekNumber) {
+  if (!historySummary) return { shouldDeload: false, reasons: [] };
+
+  const reasons = [];
+
+  // 1. Strength decline: est 1RM dropping on 2+ exercises
+  const decliningExercises = (historySummary.strengthTrends || [])
+    .filter(t => t.trend === 'declining');
+  if (decliningExercises.length >= 2) {
+    reasons.push(`Strength declining on ${decliningExercises.length} exercises: ${decliningExercises.map(e => e.exercise).join(', ')}`);
+  }
+
+  // 2. RPE trending up without load increase
+  if (historySummary.rpeGap !== null && historySummary.rpeGap > 1.0) {
+    reasons.push(`RPE running ${historySummary.rpeGap.toFixed(1)} points above prescribed — fatigue accumulation`);
+  }
+
+  // 3. Completion rate dropping
+  if (historySummary.completionRate < 0.8) {
+    reasons.push(`Session completion rate at ${Math.round(historySummary.completionRate * 100)}% — below 80% threshold`);
+  }
+
+  // 4. Readiness scores declining
+  if (historySummary.readinessAvg !== undefined && historySummary.readinessAvg < 2.5) {
+    reasons.push(`Average readiness ${historySummary.readinessAvg.toFixed(1)}/5 — below recovery threshold`);
+  }
+
+  // 5. RPE drift increasing (intra-session fatigue)
+  if (historySummary.rpeDrift !== undefined && historySummary.rpeDrift > 2.0) {
+    reasons.push(`High intra-session RPE drift (${historySummary.rpeDrift.toFixed(1)}) — volume may exceed recovery capacity`);
+  }
+
+  // Need at least 2 indicators for a strong deload recommendation,
+  // or 1 indicator if we're past week 4 (late in mesocycle)
+  const threshold = currentWeekNumber >= 5 ? 1 : 2;
+  const shouldDeload = reasons.length >= threshold;
+
+  return { shouldDeload, reasons };
+}

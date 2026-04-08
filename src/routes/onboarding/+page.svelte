@@ -484,7 +484,8 @@
             <div class="flex flex-col items-center gap-3">
               {#if loading}
                 <div class="w-12 h-12 rounded-full border-4 border-t-transparent animate-spin" style="border-color: #3B82F6; border-top-color: transparent;"></div>
-                <p class="text-sm font-semibold" style="color: #F1F1F3;">Generating your personalized program...</p>
+                <p class="text-sm font-semibold" style="color: #F1F1F3;">Setting up your program...</p>
+                <p class="text-xs" style="color: #6B6B75;">Usually takes about 10 seconds</p>
               {:else}
                 <div class="w-12 h-12 rounded-full flex items-center justify-center" style="background: #3B82F6;">
                   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round">
@@ -554,7 +555,7 @@
           <button type="submit" disabled={loading}
             class="flex-1 rounded-xl py-3.5 text-sm font-bold active:scale-95"
             style="background: #22C55E; color: #fff; opacity: {loading ? 0.7 : 1};">
-            {loading ? 'Creating account & plan...' : 'Create Account & Generate Plan'}
+            {loading ? 'Setting up...' : 'Create Account'}
           </button>
         {/if}
       </div>

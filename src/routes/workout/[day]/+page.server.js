@@ -1,5 +1,5 @@
 import { requireAuth } from '$lib/auth';
-import { getUserConfig, getWorkoutHistory, getWorkout, getPlan } from '$lib/storage';
+import { getUserConfig, getWorkoutHistory, getWorkout, getPlan, getPlanWeek } from '$lib/storage';
 import { getCurrentWeek } from '$lib/weekCalc';
 
 export async function load({ cookies, params }) {
@@ -10,20 +10,28 @@ export async function load({ cookies, params }) {
     return { error: 'Invalid day.' };
   }
 
-  const [config, history, plan] = await Promise.all([
+  const [config, history] = await Promise.all([
     getUserConfig(username),
-    getWorkoutHistory(username),
-    getPlan(username)
+    getWorkoutHistory(username)
   ]);
 
   const weekInfo = getCurrentWeek(config?.startDate, config?.weekOverride);
 
-  // Extract day data from the AI-generated plan
+  // Try per-week storage first, then legacy full plan
   let dayData = null;
-  if (plan?.weeks) {
-    const week = plan.weeks.find((w) => w.weekNumber === weekInfo.weekNumber);
-    if (week?.days) {
-      dayData = week.days.find((d) => d.dayNumber === dayNum) || week.days[dayNum - 1] || null;
+  const weekData = await getPlanWeek(username, weekInfo.weekNumber);
+  if (weekData?.days) {
+    dayData = weekData.days.find(d => d.dayNumber === dayNum) || weekData.days[dayNum - 1] || null;
+  }
+
+  if (!dayData) {
+    // Fallback: legacy full plan
+    const plan = await getPlan(username);
+    if (plan?.weeks) {
+      const week = plan.weeks.find(w => w.weekNumber === weekInfo.weekNumber);
+      if (week?.days) {
+        dayData = week.days.find(d => d.dayNumber === dayNum) || week.days[dayNum - 1] || null;
+      }
     }
   }
 
@@ -33,12 +41,10 @@ export async function load({ cookies, params }) {
 
   const today = new Date().toISOString().split('T')[0];
 
-  // Check if already done today
-  const doneToday = (history || []).some((h) => (h.day === dayNum || h.dayNumber === dayNum) && h.date === today);
+  const doneToday = (history || []).some(h => (h.day === dayNum || h.dayNumber === dayNum) && h.date === today);
 
-  // Find previous workout for this day (for overload context)
   const prevEntry = (history || [])
-    .filter((h) => (h.day === dayNum || h.dayNumber === dayNum) && h.date !== today)
+    .filter(h => (h.day === dayNum || h.dayNumber === dayNum) && h.date !== today)
     .sort((a, b) => b.date.localeCompare(a.date))[0];
 
   const prevWorkout = prevEntry ? await getWorkout(username, prevEntry.date) : null;

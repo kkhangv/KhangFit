@@ -9,6 +9,8 @@ const keys = {
   user: (username) => `user:${username}`,
   userConfig: (username) => `user:${username}:config`,
   plan: (username) => `plan:${username}`,
+  skeleton: (username) => `plan:${username}:skeleton`,
+  planWeek: (username, weekNum) => `plan:${username}:week:${weekNum}`,
   statsLatest: (username) => `stats:${username}:latest`,
   statsDate: (username, date) => `stats:${username}:${date}`,
   workout: (username, date) => `workout:${username}:${date}`,
@@ -97,6 +99,63 @@ export async function getPlan(username) {
   const raw = await kv.get(keys.plan(username));
   if (!raw) return null;
   return typeof raw === 'string' ? JSON.parse(raw) : raw;
+}
+
+// ─── Skeleton & per-week plan functions ─────────────────────────────────────
+
+/**
+ * Save the program skeleton (structure without exercises).
+ * @param {string} username
+ * @param {object} skeleton - { programName, programDescription, totalWeeks, daysPerWeek, weekOverviews[] }
+ */
+export async function saveSkeleton(username, skeleton) {
+  await kv.set(keys.skeleton(username), JSON.stringify(skeleton));
+}
+
+/**
+ * Fetch the program skeleton, or null.
+ * @param {string} username
+ * @returns {Promise<object | null>}
+ */
+export async function getSkeleton(username) {
+  const raw = await kv.get(keys.skeleton(username));
+  if (!raw) return null;
+  return typeof raw === 'string' ? JSON.parse(raw) : raw;
+}
+
+/**
+ * Save a single week's exercise data.
+ * @param {string} username
+ * @param {number} weekNum - 1-based week number
+ * @param {object} weekData - { weekNumber, theme, isDeload, days: [{ exercises... }] }
+ */
+export async function savePlanWeek(username, weekNum, weekData) {
+  await kv.set(keys.planWeek(username, weekNum), JSON.stringify(weekData));
+}
+
+/**
+ * Fetch a single week's exercise data, or null if not yet generated.
+ * @param {string} username
+ * @param {number} weekNum
+ * @returns {Promise<object | null>}
+ */
+export async function getPlanWeek(username, weekNum) {
+  const raw = await kv.get(keys.planWeek(username, weekNum));
+  if (!raw) return null;
+  return typeof raw === 'string' ? JSON.parse(raw) : raw;
+}
+
+/**
+ * Clear all generated week data (used when regenerating skeleton).
+ * @param {string} username
+ * @param {number} maxWeeks
+ */
+export async function clearPlanWeeks(username, maxWeeks = 10) {
+  const deletes = [];
+  for (let i = 1; i <= maxWeeks; i++) {
+    deletes.push(kv.del(keys.planWeek(username, i)));
+  }
+  await Promise.all(deletes);
 }
 
 // ─── Stats functions ─────────────────────────────────────────────────────────

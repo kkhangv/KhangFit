@@ -1,7 +1,7 @@
 import { redirect, fail } from '@sveltejs/kit';
-import { getUser, createUser, updateUserConfig, saveStats, savePlan } from '$lib/storage';
+import { getUser, createUser, updateUserConfig, saveSkeleton } from '$lib/storage';
 import { hashPassword, createSession } from '$lib/auth';
-import { generatePlan } from '$lib/ai.js';
+import { generateSkeleton } from '$lib/ai.js';
 
 export async function load({ cookies }) {
   const { getSession } = await import('$lib/auth');
@@ -78,12 +78,12 @@ export const actions = {
       ...profile
     });
 
-    // Generate workout plan via Claude
+    // Generate skeleton only — Day 1 is generated from the dashboard
     try {
-      const plan = await generatePlan(profile);
-      await savePlan(username, plan);
+      const skeleton = await generateSkeleton(profile);
+      await saveSkeleton(username, skeleton);
     } catch (err) {
-      console.error('Plan generation failed:', err);
+      console.error('Skeleton generation failed:', err);
       // Don't block onboarding — user can regenerate from dashboard
     }
 

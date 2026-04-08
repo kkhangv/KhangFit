@@ -12,7 +12,7 @@
     class="inline-flex items-center justify-center rounded-full cursor-pointer shrink-0"
     style="
       width: 18px; height: 18px; font-size: 11px; font-weight: 700;
-      background: {open ? '#3B82F6' : '#2A2A2E'};
+      background: {open ? '#84CC16' : '#2A2A2E'};
       color: {open ? '#fff' : '#9B9BA4'};
       transition: all 0.15s;
       line-height: 1;
@@ -31,7 +31,7 @@
     <div
       style="
         position: absolute; left: 24px; top: -8px; z-index: 50;
-        background: #1E1E22; border: 1px solid #3B82F6; border-radius: 12px;
+        background: #1E1E22; border: 1px solid #84CC16; border-radius: 12px;
         padding: 12px 14px; min-width: 260px; max-width: 320px;
         box-shadow: 0 8px 24px rgba(0,0,0,0.5);
       "

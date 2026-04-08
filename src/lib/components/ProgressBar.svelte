@@ -1,5 +1,5 @@
 <script>
-  let { value = 0, label = '', color = '#3B82F6' } = $props();
+  let { value = 0, label = '', color = '#84CC16' } = $props();
 
   let clampedValue = $derived(Math.min(100, Math.max(0, value)));
 </script>
@@ -19,7 +19,7 @@
     ></div>
   </div>
   {#if label}
-    <span class="text-xs shrink-0" style="color: #9B9BA4; min-width: 2.5rem; text-align: right;">
+    <span class="text-sm shrink-0" style="color: #9B9BA4; min-width: 2.5rem; text-align: right;">
       {label}
     </span>
   {/if}

@@ -1,6 +1,6 @@
-# KhangFit
+# KhangLift
 
-An AI-powered workout tracker that generates personalized, research-grounded training plans using Claude. Built with SvelteKit 5, deployed on Vercel, persisted in Upstash Redis.
+**Adaptive AI Fitness Coach** — personalized training plans powered by Claude, backed by 200+ peer-reviewed studies in exercise science, hypertrophy, and periodization.
 
 **Live:** https://khangfit.vercel.app
 
@@ -8,20 +8,22 @@ An AI-powered workout tracker that generates personalized, research-grounded tra
 
 ## Features
 
-- **AI plan generation** — Claude Sonnet generates 5-week DUP (daily undulating periodization) mesocycles grounded in exercise science (MEV/MAV/MRV volume landmarks, RPE-based loading, deload protocols)
-- **Progressive onboarding** — 4-step flow (account → body stats → equipment/goals → generate) completing in ~10 seconds
-- **Mobile-first workout UI** — single-set-at-a-time wizard with large touch targets, weight steppers, and inline rest timer
+- **Adaptive AI plan generation** — Claude Sonnet 4.6 generates 5-week DUP (daily undulating periodization) mesocycles grounded in exercise science (MEV/MAV/MRV volume landmarks, RPE-based loading, deload protocols)
+- **Progressive onboarding** — 4-step flow (account + phone → body stats → equipment/goals → generate) completing in ~10 seconds
+- **Mobile-first workout UI** — full-screen fixed layout (no viewport scroll), single-set-at-a-time wizard with large touch targets, weight steppers, inline rest timer, and no iOS zoom on input focus
 - **In-session auto-regulation** — RPE feedback after every set silently adjusts weight for the next set using deterministic math (no AI calls)
+- **Readiness check** — pre-workout sleep/stress/soreness/energy check with scale labels; gates workout start until all 4 fields are filled
 - **Cardio-aware** — exercises using peloton, treadmill, rower, etc. switch to duration tracking automatically
 - **Workout history** — completed sessions feed back into plan regeneration for progressive overload recommendations
 - **Day 1 summary** — after the calibration session, the dashboard shows performance breakdown before generating the full week
+- **AI brevity** — all generated descriptions, cues, and tips are constrained to 1 sentence for fast, scannable reading
 
 ---
 
 ## Architecture
 
 ```
-Onboarding (4 steps)
+Onboarding (4 steps: Account+Phone → About You → Personalize → Generate)
   └─ generateSkeleton()        ~10s  → Redis: plan:{user}:skeleton
        │
        ▼
@@ -30,6 +32,7 @@ Dashboard STATE 1.5 (skeleton preview)
        │
        ▼
 Workout Session (Day 1)
+  └─ Readiness check (sleep/stress/soreness/energy)
   └─ RPE feedback → deterministic weight adjust (no AI)
   └─ saveWorkout()             → Redis: workout:{user}:{date}
        │
@@ -55,7 +58,8 @@ Full week view
 | AI | Claude Sonnet 4.6 via Anthropic API — structured outputs + prompt caching |
 | Database | Upstash Redis (`@upstash/redis`) |
 | Auth | bcrypt passwords + session cookies (7-day, httpOnly) |
-| Styling | Tailwind CSS 4 + inline styles for dark theme |
+| Icons | `lucide-svelte` (ChevronLeft, Clock, Zap, Info, Play, CheckCircle2, Sparkles) |
+| Styling | Tailwind CSS 4 + inline styles, theme color `#84CC16` (lime/yellow-green) |
 | Deployment | Vercel (auto-deploy from `main`) |
 | Node | 20+ required (`nvm use 20`) |
 
@@ -97,7 +101,7 @@ KV_REST_API_TOKEN=...
 | `KV_REST_API_URL` | Upstash Redis REST URL |
 | `KV_REST_API_TOKEN` | Upstash Redis REST token |
 
-The Redis client also accepts `UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN` as fallback names (useful for local dev with a different Upstash project).
+The Redis client also accepts `UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN` as fallback names.
 
 ### Local Development
 
@@ -183,48 +187,16 @@ All requests require an authenticated session cookie. Rate limited to **7 genera
 | `day` | `profile`, `currentDay`, `weekNumber` | Shuffle one day's exercises (~30s) |
 | `full` | `profile` | Legacy: generate entire 5-week plan at once |
 
-**Profile fields** (all required):
-
-```js
-{
-  equipment: string[],       // e.g. ['barbell', 'dumbbells', 'pull-up bar']
-  goal: string,              // 'hypertrophy' | 'strength' | 'endurance'
-  daysPerWeek: number,       // 3-5
-  experience: string,        // 'beginner' | 'intermediate' | 'advanced'
-  focusMuscles: string[],    // e.g. ['chest', 'back', 'shoulders']
-  cardio: string,            // 'none' | 'minimal' | 'moderate' | 'heavy'
-  cardioType: string,        // e.g. 'cycling' | 'running'
-  cardioDuration: number,    // minutes per session
-  mobility: string[],        // e.g. ['hip flexors', 'thoracic spine']
-  injuries: string | null,
-  sessionDuration: number,   // minutes
-  freeformNotes: string | null,
-  age: number,
-  bodyWeight: number,        // lbs
-  bodyFat: number,           // %
-  trainingAge: string | null // e.g. '3-5 years'
-}
-```
-
 ---
 
-## Testing AI Endpoints
+## Mobile UX
 
-A dev-only smoke test endpoint exercises all 6 AI generation modes with realistic mock data:
+The workout page is designed to feel like a native app on iOS/Android:
 
-```bash
-# Run all 5 tests sequentially (~5 min, real Claude API calls)
-curl "http://localhost:5173/api/test-ai"
-
-# Run a single test (~30s)
-curl "http://localhost:5173/api/test-ai?test=skeleton"
-curl "http://localhost:5173/api/test-ai?test=testday"
-curl "http://localhost:5173/api/test-ai?test=remaining"
-curl "http://localhost:5173/api/test-ai?test=week"
-curl "http://localhost:5173/api/test-ai?test=day"
-```
-
-Returns `{ allOk, totalMs, testsRun, results }`. Blocked with 403 in production.
+- **No viewport scroll** — workout container is `position: fixed; inset: 0` with internal scroll only
+- **No zoom on input focus** — viewport sets `maximum-scale=1, user-scalable=no`; all inputs have `font-size: max(16px, 1em)` (iOS won't zoom inputs ≥ 16px)
+- **Numeric keyboard** — number inputs use `inputmode="numeric"` or `inputmode="decimal"` + `pattern="[0-9]*"`
+- **Touch-action** — `touch-action: manipulation` globally eliminates the 300ms tap delay
 
 ---
 
@@ -246,19 +218,39 @@ All keys are namespaced by username:
 
 | Key | Value | Description |
 |---|---|---|
-| `user:{username}` | JSON | Account info (name, passwordHash, phone) |
-| `config:{username}` | JSON | Training profile + preferences |
+| `user:{username}` | JSON | Account info (name, passwordHash, phone, createdAt) |
+| `user:{username}:config` | JSON | Training profile + preferences |
 | `plan:{username}:skeleton` | JSON | Program structure (no exercises) |
 | `plan:{username}:week:{N}` | JSON | Full week data with exercises |
 | `workout:{username}:{date}` | JSON | Completed workout log |
-| `history:{username}` | List | Date index for last 60 workout dates |
+| `history:{username}` | JSON array | Date index for last 60 workout dates |
 | `ratelimit:generate:{username}:{date}` | number | Daily generation count (TTL 24h) |
+
+---
+
+## Testing AI Endpoints
+
+A dev-only smoke test endpoint exercises all 6 AI generation modes with realistic mock data:
+
+```bash
+# Run all tests sequentially (~5 min, real Claude API calls)
+curl "http://localhost:5173/api/test-ai"
+
+# Run a single test (~30s)
+curl "http://localhost:5173/api/test-ai?test=skeleton"
+curl "http://localhost:5173/api/test-ai?test=testday"
+curl "http://localhost:5173/api/test-ai?test=remaining"
+curl "http://localhost:5173/api/test-ai?test=week"
+curl "http://localhost:5173/api/test-ai?test=day"
+```
+
+Returns `{ allOk, totalMs, testsRun, results }`. Blocked with 403 in production.
 
 ---
 
 ## Contributing
 
 1. Branch from `main`
-2. Run `npm run dev` and verify locally
+2. Run `nvm use 20 && npm run dev` and verify locally
 3. Hit `GET /api/test-ai` to smoke-test AI endpoints before PRing
 4. Open a PR against `main` — Vercel preview deployments are created automatically

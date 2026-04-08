@@ -23,7 +23,7 @@
 
   let borderColor = $derived(
     status === 'today'
-      ? '#3B82F6'
+      ? '#84CC16'
       : status === 'done'
       ? '#22C55E'
       : '#2A2A2E'
@@ -31,7 +31,7 @@
 
   let glowStyle = $derived(
     status === 'today'
-      ? 'box-shadow: 0 0 0 1px #3B82F6, 0 0 20px rgba(59, 130, 246, 0.25);'
+      ? 'box-shadow: 0 0 0 1px #84CC16, 0 0 20px rgba(16, 185, 129, 0.25);'
       : status === 'done'
       ? 'box-shadow: 0 0 0 1px #22C55E44;'
       : ''
@@ -62,7 +62,7 @@
   <!-- Card body -->
   <div class="flex-1 px-4 pt-4 pb-3 flex flex-col gap-1">
     <!-- Day of week label -->
-    <span class="text-xs font-medium uppercase tracking-wider" style="color: #6B6B75;">{dayLabel}</span>
+    <span class="text-sm font-medium uppercase tracking-wider" style="color: #6B6B75;">{dayLabel}</span>
 
     <!-- Day name -->
     <div class="flex items-center gap-2 flex-wrap">
@@ -71,18 +71,18 @@
       <!-- Status badges -->
       {#if status === 'done'}
         <span
-          class="text-xs font-semibold px-2 py-0.5 rounded-full"
+          class="text-sm font-semibold px-2 py-0.5 rounded-full"
           style="background: rgba(34, 197, 94, 0.15); color: #22C55E;"
         >✓ Completed</span>
       {:else if status === 'missed'}
         <span
-          class="text-xs font-semibold px-2 py-0.5 rounded-full"
+          class="text-sm font-semibold px-2 py-0.5 rounded-full"
           style="background: rgba(239, 68, 68, 0.15); color: #EF4444;"
         >Missed</span>
       {:else if status === 'today'}
         <span
-          class="text-xs font-semibold px-2 py-0.5 rounded-full"
-          style="background: rgba(59, 130, 246, 0.15); color: #3B82F6;"
+          class="text-sm font-semibold px-2 py-0.5 rounded-full"
+          style="background: rgba(16, 185, 129, 0.15); color: #84CC16;"
         >Today</span>
       {/if}
     </div>
@@ -94,12 +94,12 @@
 
     <!-- Completed at time -->
     {#if status === 'done' && formattedTime}
-      <span class="text-xs" style="color: #6B6B75;">Completed at {formattedTime}</span>
+      <span class="text-sm" style="color: #6B6B75;">Completed at {formattedTime}</span>
     {/if}
 
     <!-- CTA for today -->
     {#if status === 'today'}
-      <span class="text-sm font-semibold mt-1" style="color: #3B82F6;">Start Workout →</span>
+      <span class="text-base font-semibold mt-1" style="color: #84CC16;">Start Workout →</span>
     {/if}
   </div>
 
@@ -107,7 +107,7 @@
   <div class="px-4 pb-3">
     <ProgressBar
       value={completionPercent}
-      color={status === 'done' ? '#22C55E' : status === 'today' ? '#3B82F6' : '#6B6B75'}
+      color={status === 'done' ? '#22C55E' : status === 'today' ? '#84CC16' : '#6B6B75'}
     />
   </div>
 </button>

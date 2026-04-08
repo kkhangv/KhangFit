@@ -20,6 +20,7 @@ export const actions = {
     const name = data.get('name')?.toString().trim();
     const username = data.get('username')?.toString().trim().toLowerCase();
     const password = data.get('password')?.toString();
+    const phone = data.get('phone')?.toString().trim() || null;
 
     // Step 2: About You + Training
     const age = data.get('age') ? parseInt(data.get('age')) : null;
@@ -61,7 +62,7 @@ export const actions = {
     }
 
     const passwordHash = await hashPassword(password);
-    await createUser(username, { name, passwordHash });
+    await createUser(username, { name, passwordHash, phone });
 
     // Save profile config (used for future plan regeneration)
     const profile = {

@@ -12,6 +12,7 @@
   let name = $state('');
   let username = $state('');
   let password = $state('');
+  let phone = $state('');
   let showPassword = $state(false);
 
   // Step 2: About You + Training
@@ -56,9 +57,9 @@
       title: 'Sets, Reps & Rest',
       body: 'Your plan prescribes exact rep targets (e.g. "8 reps") not ranges. After each set, tell the app how hard it was and it adjusts your next set automatically.',
       items: [
-        { label: 'Sets', desc: 'Groups of reps with rest between them', color: '#3B82F6' },
-        { label: 'Reps', desc: 'Number of times you lift the weight', color: '#3B82F6' },
-        { label: 'Rest', desc: '60\u2013120 sec between sets for hypertrophy', color: '#3B82F6' },
+        { label: 'Sets', desc: 'Groups of reps with rest between them', color: '#84CC16' },
+        { label: 'Reps', desc: 'Number of times you lift the weight', color: '#84CC16' },
+        { label: 'Rest', desc: '60\u2013120 sec between sets for hypertrophy', color: '#84CC16' },
       ]
     },
     {
@@ -115,6 +116,7 @@
       if (!username.trim()) { localError = 'Choose a username.'; return; }
       if (!username.match(/^[a-z0-9_]+$/i)) { localError = 'Username: letters, numbers, underscores only.'; return; }
       if (!password || password.length < 6) { localError = 'Password must be at least 6 characters.'; return; }
+      if (!phone.trim() || phone.replace(/\D/g, '').length < 10) { localError = 'Enter a valid phone number (10+ digits).'; return; }
     }
     if (step === 2) {
       if (!trainingAge) { localError = 'How long have you been training?'; return; }
@@ -157,7 +159,7 @@
 </script>
 
 <svelte:head>
-  <title>LIFT — Set Up Your Account</title>
+  <title>KhangLift — Set Up Your Account</title>
 </svelte:head>
 
 <div class="min-h-screen flex items-center justify-center px-4 py-12" style="background: #0A0A0B;">
@@ -165,7 +167,7 @@
 
     <!-- Header -->
     <div class="text-center mb-8">
-      <div class="inline-flex items-center justify-center rounded-2xl mb-4" style="width: 56px; height: 56px; background: #3B82F6;">
+      <div class="inline-flex items-center justify-center rounded-2xl mb-4" style="width: 56px; height: 56px; background: #84CC16;">
         <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
           <path d="M6 4v16M18 4v16M3 8h3M18 8h3M3 16h3M18 16h3M6 12h12" />
         </svg>
@@ -183,7 +185,7 @@
               class="flex items-center justify-center rounded-full text-xs font-bold shrink-0 transition-all duration-300"
               style="
                 width: 28px; height: 28px;
-                background: {step > idx ? '#22C55E' : step === idx ? '#3B82F6' : '#2A2A2E'};
+                background: {step > idx ? '#22C55E' : step === idx ? '#84CC16' : '#2A2A2E'};
                 color: {step >= idx ? '#fff' : '#6B6B75'};
               "
             >
@@ -202,12 +204,12 @@
 
     <!-- Errors -->
     {#if form?.error}
-      <div class="mb-4 rounded-xl px-4 py-3 text-sm font-medium" style="background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.3); color: #F87171;">
+      <div class="mb-4 rounded-xl px-4 py-3 text-base font-medium" style="background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.3); color: #F87171;">
         {form.error}
       </div>
     {/if}
     {#if localError}
-      <div class="mb-4 rounded-xl px-4 py-3 text-sm font-medium" style="background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.3); color: #F87171;">
+      <div class="mb-4 rounded-xl px-4 py-3 text-base font-medium" style="background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.3); color: #F87171;">
         {localError}
       </div>
     {/if}
@@ -226,6 +228,7 @@
       <input type="hidden" name="name" value={name} />
       <input type="hidden" name="username" value={username.toLowerCase()} />
       <input type="hidden" name="password" value={password} />
+      <input type="hidden" name="phone" value={phone} />
       <input type="hidden" name="age" value={age} />
       <input type="hidden" name="bodyWeight" value={bodyWeight} />
       <input type="hidden" name="bodyFat" value={bodyFat} />
@@ -250,27 +253,27 @@
           <h2 class="text-lg font-bold mb-5" style="color: #F1F1F3;">Your Account</h2>
           <div class="flex flex-col gap-4">
             <div class="flex flex-col gap-1.5">
-              <label class="text-sm font-medium" style="color: #9B9BA4;">Name</label>
+              <label class="text-base font-medium" style="color: #9B9BA4;">Name</label>
               <input type="text" bind:value={name} placeholder="Alex" autocomplete="name"
-                class="w-full rounded-xl px-4 py-3 text-sm outline-none"
+                class="w-full rounded-xl px-4 py-3 text-base outline-none"
                 style="background: #0A0A0B; border: 1px solid #2A2A2E; color: #F1F1F3;" />
             </div>
             <div class="flex flex-col gap-1.5">
-              <label class="text-sm font-medium" style="color: #9B9BA4;">Username</label>
+              <label class="text-base font-medium" style="color: #9B9BA4;">Username</label>
               <input type="text" bind:value={username} placeholder="alex_lifts" autocomplete="username" autocapitalize="none"
-                class="w-full rounded-xl px-4 py-3 text-sm outline-none"
+                class="w-full rounded-xl px-4 py-3 text-base outline-none"
                 style="background: #0A0A0B; border: 1px solid #2A2A2E; color: #F1F1F3;" />
               <p class="text-xs" style="color: #6B6B75;">Used to log in.</p>
             </div>
             <div class="flex flex-col gap-1.5">
-              <label class="text-sm font-medium" style="color: #9B9BA4;">Password</label>
+              <label class="text-base font-medium" style="color: #9B9BA4;">Password</label>
               <div class="relative">
                 <input
                   type={showPassword ? 'text' : 'password'}
                   bind:value={password}
                   placeholder="6+ characters"
                   autocomplete="new-password"
-                  class="w-full rounded-xl px-4 py-3 pr-16 text-sm outline-none"
+                  class="w-full rounded-xl px-4 py-3 pr-16 text-base outline-none"
                   style="background: #0A0A0B; border: 1px solid #2A2A2E; color: #F1F1F3;" />
                 <button
                   type="button"
@@ -281,6 +284,18 @@
                   {showPassword ? 'Hide' : 'Show'}
                 </button>
               </div>
+            </div>
+            <div class="flex flex-col gap-1.5">
+              <label class="text-base font-medium" style="color: #9B9BA4;">Phone Number</label>
+              <input
+                type="tel"
+                bind:value={phone}
+                placeholder="+1 (555) 000-0000"
+                autocomplete="tel"
+                inputmode="numeric"
+                class="w-full rounded-xl px-4 py-3 text-base outline-none"
+                style="background: #0A0A0B; border: 1px solid #2A2A2E; color: #F1F1F3;" />
+              <p class="text-xs" style="color: #6B6B75;">Used for account recovery only.</p>
             </div>
           </div>
         {/if}
@@ -293,16 +308,16 @@
 
             <!-- Training history — the key question -->
             <div class="flex flex-col gap-2">
-              <label class="text-sm font-semibold" style="color: #9B9BA4;">How long have you been lifting?</label>
+              <label class="text-base font-semibold" style="color: #9B9BA4;">How long have you been lifting?</label>
               <div class="flex flex-col gap-1.5">
                 {#each trainingAges as ta}
                   <button type="button" onclick={() => trainingAge = ta.id}
                     class="w-full flex items-center justify-between px-4 py-3 rounded-xl text-left transition-all"
                     style="
-                      background: {trainingAge === ta.id ? 'rgba(59,130,246,0.1)' : '#0A0A0B'};
-                      border: 1px solid {trainingAge === ta.id ? '#3B82F6' : '#2A2A2E'};
+                      background: {trainingAge === ta.id ? 'rgba(132,204,22,0.1)' : '#0A0A0B'};
+                      border: 1px solid {trainingAge === ta.id ? '#84CC16' : '#2A2A2E'};
                     ">
-                    <span class="text-sm font-semibold" style="color: {trainingAge === ta.id ? '#3B82F6' : '#F1F1F3'};">{ta.label}</span>
+                    <span class="text-base font-semibold" style="color: {trainingAge === ta.id ? '#84CC16' : '#F1F1F3'};">{ta.label}</span>
                     <span class="text-xs" style="color: #6B6B75;">{ta.desc}</span>
                   </button>
                 {/each}
@@ -311,24 +326,27 @@
 
             <!-- Body stats row -->
             <div class="flex flex-col gap-2">
-              <label class="text-sm font-semibold" style="color: #9B9BA4;">Body Stats <span class="font-normal" style="color: #6B6B75;">(helps with weight recommendations)</span></label>
+              <label class="text-base font-semibold" style="color: #9B9BA4;">Body Stats <span class="font-normal" style="color: #6B6B75;">(helps with weight recommendations)</span></label>
               <div class="flex gap-3">
                 <div class="flex flex-col gap-1 flex-1">
                   <label class="text-xs" style="color: #6B6B75;">Age</label>
                   <input type="number" bind:value={age} placeholder="28" min="13" max="99"
-                    class="w-full rounded-xl px-4 py-3 text-sm outline-none"
+                    inputmode="numeric" pattern="[0-9]*"
+                    class="w-full rounded-xl px-4 py-3 text-base outline-none"
                     style="background: #0A0A0B; border: 1px solid #2A2A2E; color: #F1F1F3;" />
                 </div>
                 <div class="flex flex-col gap-1 flex-1">
                   <label class="text-xs" style="color: #6B6B75;">Weight <span style="color: #4B4B55;">(lbs)</span></label>
                   <input type="number" bind:value={bodyWeight} placeholder="175" min="50" max="500" step="0.5"
-                    class="w-full rounded-xl px-4 py-3 text-sm outline-none"
+                    inputmode="decimal" pattern="[0-9]*"
+                    class="w-full rounded-xl px-4 py-3 text-base outline-none"
                     style="background: #0A0A0B; border: 1px solid #2A2A2E; color: #F1F1F3;" />
                 </div>
                 <div class="flex flex-col gap-1 flex-1">
                   <label class="text-xs" style="color: #6B6B75;">Body Fat <span style="color: #4B4B55;">(%)</span></label>
                   <input type="number" bind:value={bodyFat} placeholder="18" min="3" max="60" step="0.5"
-                    class="w-full rounded-xl px-4 py-3 text-sm outline-none"
+                    inputmode="decimal" pattern="[0-9]*"
+                    class="w-full rounded-xl px-4 py-3 text-base outline-none"
                     style="background: #0A0A0B; border: 1px solid #2A2A2E; color: #F1F1F3;" />
                 </div>
               </div>
@@ -337,18 +355,18 @@
 
             <!-- Equipment -->
             <div class="flex flex-col gap-2">
-              <label class="text-sm font-semibold" style="color: #9B9BA4;">Equipment</label>
+              <label class="text-base font-semibold" style="color: #9B9BA4;">Equipment</label>
               <EquipmentPicker bind:value={equipment} />
             </div>
 
             <!-- Goal -->
             <div class="flex flex-col gap-2">
-              <label class="text-sm font-semibold" style="color: #9B9BA4;">Goal</label>
+              <label class="text-base font-semibold" style="color: #9B9BA4;">Goal</label>
               <div class="flex flex-wrap gap-2">
                 {#each goals as g}
                   <button type="button" onclick={() => goal = g.id}
-                    class="px-4 py-2.5 rounded-xl text-sm font-semibold transition-all"
-                    style="background: {goal === g.id ? '#3B82F6' : '#1E1E22'}; color: {goal === g.id ? '#fff' : '#9B9BA4'}; border: 1px solid {goal === g.id ? '#3B82F6' : '#2A2A2E'};">
+                    class="px-4 py-2.5 rounded-xl text-base font-semibold transition-all"
+                    style="background: {goal === g.id ? '#84CC16' : '#1E1E22'}; color: {goal === g.id ? '#fff' : '#9B9BA4'}; border: 1px solid {goal === g.id ? '#84CC16' : '#2A2A2E'};">
                     {g.label}
                   </button>
                 {/each}
@@ -357,12 +375,12 @@
 
             <!-- Days per week -->
             <div class="flex flex-col gap-2">
-              <label class="text-sm font-semibold" style="color: #9B9BA4;">Days per Week</label>
+              <label class="text-base font-semibold" style="color: #9B9BA4;">Days per Week</label>
               <div class="flex gap-2">
                 {#each [3, 4, 5, 6] as d}
                   <button type="button" onclick={() => daysPerWeek = d}
-                    class="w-14 py-2.5 rounded-xl text-sm font-bold text-center transition-all"
-                    style="background: {daysPerWeek === d ? '#3B82F6' : '#1E1E22'}; color: {daysPerWeek === d ? '#fff' : '#9B9BA4'}; border: 1px solid {daysPerWeek === d ? '#3B82F6' : '#2A2A2E'};">
+                    class="w-14 py-2.5 rounded-xl text-base font-bold text-center transition-all"
+                    style="background: {daysPerWeek === d ? '#84CC16' : '#1E1E22'}; color: {daysPerWeek === d ? '#fff' : '#9B9BA4'}; border: 1px solid {daysPerWeek === d ? '#84CC16' : '#2A2A2E'};">
                     {d}
                   </button>
                 {/each}
@@ -378,12 +396,12 @@
           <div class="flex flex-col gap-5">
             <!-- Muscle group focus -->
             <div class="flex flex-col gap-2">
-              <label class="text-sm font-semibold" style="color: #9B9BA4;">Focus Muscles <span class="font-normal" style="color: #6B6B75;">(extra volume)</span></label>
+              <label class="text-base font-semibold" style="color: #9B9BA4;">Focus Muscles <span class="font-normal" style="color: #6B6B75;">(extra volume)</span></label>
               <div class="flex flex-wrap gap-2">
                 {#each muscleGroups as m}
                   <button type="button" onclick={() => toggleMuscle(m)}
-                    class="px-3 py-2 rounded-lg text-sm font-medium transition-all"
-                    style="background: {focusMuscles.includes(m) ? 'rgba(59,130,246,0.15)' : '#1E1E22'}; color: {focusMuscles.includes(m) ? '#3B82F6' : '#6B6B75'}; border: 1px solid {focusMuscles.includes(m) ? '#3B82F6' : '#2A2A2E'};">
+                    class="px-3 py-2 rounded-lg text-base font-medium transition-all"
+                    style="background: {focusMuscles.includes(m) ? 'rgba(132,204,22,0.15)' : '#1E1E22'}; color: {focusMuscles.includes(m) ? '#84CC16' : '#6B6B75'}; border: 1px solid {focusMuscles.includes(m) ? '#84CC16' : '#2A2A2E'};">
                     {focusMuscles.includes(m) ? '\u2713 ' : ''}{m}
                   </button>
                 {/each}
@@ -392,12 +410,12 @@
 
             <!-- Cardio -->
             <div class="flex flex-col gap-2">
-              <label class="text-sm font-semibold" style="color: #9B9BA4;">Cardio</label>
+              <label class="text-base font-semibold" style="color: #9B9BA4;">Cardio</label>
               <div class="flex flex-wrap gap-2">
                 {#each cardioOptions as c}
                   <button type="button" onclick={() => cardio = c.id}
-                    class="px-3 py-2 rounded-lg text-sm font-medium transition-all"
-                    style="background: {cardio === c.id ? 'rgba(59,130,246,0.15)' : '#1E1E22'}; color: {cardio === c.id ? '#3B82F6' : '#6B6B75'}; border: 1px solid {cardio === c.id ? '#3B82F6' : '#2A2A2E'};">
+                    class="px-3 py-2 rounded-lg text-base font-medium transition-all"
+                    style="background: {cardio === c.id ? 'rgba(132,204,22,0.15)' : '#1E1E22'}; color: {cardio === c.id ? '#84CC16' : '#6B6B75'}; border: 1px solid {cardio === c.id ? '#84CC16' : '#2A2A2E'};">
                     {c.label}
                   </button>
                 {/each}
@@ -405,10 +423,10 @@
               {#if cardio !== 'none'}
                 <div class="flex gap-2 mt-1">
                   <input type="text" bind:value={cardioType} placeholder="Type (cycling, running, any)"
-                    class="flex-1 rounded-lg px-3 py-2 text-sm outline-none"
+                    class="flex-1 rounded-lg px-3 py-2 text-base outline-none"
                     style="background: #0A0A0B; border: 1px solid #2A2A2E; color: #F1F1F3;" />
                   <select bind:value={cardioDuration}
-                    class="rounded-lg px-3 py-2 text-sm outline-none"
+                    class="rounded-lg px-3 py-2 text-base outline-none"
                     style="background: #0A0A0B; border: 1px solid #2A2A2E; color: #F1F1F3;">
                     <option value={15}>15 min</option>
                     <option value={20}>20 min</option>
@@ -420,17 +438,17 @@
 
             <!-- PT / Mobility -->
             <div class="flex flex-col gap-2">
-              <label class="flex items-center gap-2 text-sm font-semibold cursor-pointer" style="color: #9B9BA4;">
+              <label class="flex items-center gap-2 text-base font-semibold cursor-pointer" style="color: #9B9BA4;">
                 <input type="checkbox" bind:checked={mobilityEnabled}
-                  class="rounded" style="accent-color: #3B82F6;" />
+                  class="rounded" style="accent-color: #84CC16;" />
                 Include PT / Mobility Work
               </label>
               {#if mobilityEnabled}
                 <div class="flex flex-wrap gap-2">
                   {#each mobilityAreas as area}
                     <button type="button" onclick={() => toggleMobility(area)}
-                      class="px-3 py-2 rounded-lg text-sm font-medium transition-all"
-                      style="background: {mobility.includes(area) ? 'rgba(59,130,246,0.15)' : '#1E1E22'}; color: {mobility.includes(area) ? '#3B82F6' : '#6B6B75'}; border: 1px solid {mobility.includes(area) ? '#3B82F6' : '#2A2A2E'};">
+                      class="px-3 py-2 rounded-lg text-base font-medium transition-all"
+                      style="background: {mobility.includes(area) ? 'rgba(132,204,22,0.15)' : '#1E1E22'}; color: {mobility.includes(area) ? '#84CC16' : '#6B6B75'}; border: 1px solid {mobility.includes(area) ? '#84CC16' : '#2A2A2E'};">
                       {mobility.includes(area) ? '\u2713 ' : ''}{area}
                     </button>
                   {/each}
@@ -440,26 +458,26 @@
 
             <!-- Injuries -->
             <div class="flex flex-col gap-1.5">
-              <label class="text-sm font-semibold" style="color: #9B9BA4;">Injuries / Limitations</label>
+              <label class="text-base font-semibold" style="color: #9B9BA4;">Injuries / Limitations</label>
               <input type="text" bind:value={injuries} placeholder="Bad left shoulder, knee issues..."
-                class="w-full rounded-xl px-4 py-3 text-sm outline-none"
+                class="w-full rounded-xl px-4 py-3 text-base outline-none"
                 style="background: #0A0A0B; border: 1px solid #2A2A2E; color: #F1F1F3;" />
             </div>
 
             <!-- Session duration -->
             <div class="flex flex-col gap-2">
-              <label class="text-sm font-semibold" style="color: #9B9BA4;">Session Duration</label>
+              <label class="text-base font-semibold" style="color: #9B9BA4;">Session Duration</label>
               <div class="flex gap-2">
                 {#each durations as d}
                   <button type="button" onclick={() => sessionDuration = d}
-                    class="px-4 py-2 rounded-xl text-sm font-semibold transition-all"
-                    style="background: {sessionDuration === d ? '#3B82F6' : '#1E1E22'}; color: {sessionDuration === d ? '#fff' : '#9B9BA4'}; border: 1px solid {sessionDuration === d ? '#3B82F6' : '#2A2A2E'};">
+                    class="px-4 py-2 rounded-xl text-base font-semibold transition-all"
+                    style="background: {sessionDuration === d ? '#84CC16' : '#1E1E22'}; color: {sessionDuration === d ? '#fff' : '#9B9BA4'}; border: 1px solid {sessionDuration === d ? '#84CC16' : '#2A2A2E'};">
                     {d} min
                   </button>
                 {/each}
                 <button type="button" onclick={() => sessionDuration = 0}
-                  class="px-4 py-2 rounded-xl text-sm font-semibold transition-all"
-                  style="background: {sessionDuration === 0 ? '#3B82F6' : '#1E1E22'}; color: {sessionDuration === 0 ? '#fff' : '#9B9BA4'}; border: 1px solid {sessionDuration === 0 ? '#3B82F6' : '#2A2A2E'};">
+                  class="px-4 py-2 rounded-xl text-base font-semibold transition-all"
+                  style="background: {sessionDuration === 0 ? '#84CC16' : '#1E1E22'}; color: {sessionDuration === 0 ? '#fff' : '#9B9BA4'}; border: 1px solid {sessionDuration === 0 ? '#84CC16' : '#2A2A2E'};">
                   No limit
                 </button>
               </div>
@@ -467,10 +485,10 @@
 
             <!-- Free-form notes -->
             <div class="flex flex-col gap-1.5">
-              <label class="text-sm font-semibold" style="color: #9B9BA4;">Anything Else?</label>
+              <label class="text-base font-semibold" style="color: #9B9BA4;">Anything Else?</label>
               <textarea bind:value={freeformNotes} rows="3"
                 placeholder="I want to focus on incline pressing, I hate leg extensions, I do BJJ on Wednesdays..."
-                class="w-full rounded-xl px-4 py-3 text-sm outline-none resize-none"
+                class="w-full rounded-xl px-4 py-3 text-base outline-none resize-none"
                 style="background: #0A0A0B; border: 1px solid #2A2A2E; color: #F1F1F3;"></textarea>
               <p class="text-xs" style="color: #6B6B75;">This goes directly to the AI \u2014 be specific!</p>
             </div>
@@ -483,17 +501,17 @@
             <!-- Loading / ready state -->
             <div class="flex flex-col items-center gap-3">
               {#if loading}
-                <div class="w-12 h-12 rounded-full border-4 border-t-transparent animate-spin" style="border-color: #3B82F6; border-top-color: transparent;"></div>
-                <p class="text-sm font-semibold" style="color: #F1F1F3;">Setting up your program...</p>
-                <p class="text-xs" style="color: #6B6B75;">Usually takes about 10 seconds</p>
+                <div class="w-12 h-12 rounded-full border-4 border-t-transparent animate-spin" style="border-color: #84CC16; border-top-color: transparent;"></div>
+                <p class="text-base font-semibold" style="color: #F1F1F3;">Setting up your program...</p>
+                <p class="text-sm" style="color: #6B6B75;">Usually takes about 10 seconds</p>
               {:else}
-                <div class="w-12 h-12 rounded-full flex items-center justify-center" style="background: #3B82F6;">
+                <div class="w-12 h-12 rounded-full flex items-center justify-center" style="background: #84CC16;">
                   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round">
                     <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
                   </svg>
                 </div>
-                <p class="text-sm font-semibold" style="color: #F1F1F3;">Ready to generate your plan</p>
-                <p class="text-xs text-center" style="color: #6B6B75;">
+                <p class="text-base font-semibold" style="color: #F1F1F3;">Ready to generate your plan</p>
+                <p class="text-sm text-center" style="color: #6B6B75;">
                   {daysPerWeek}-day/week \u00b7 5-week program \u00b7 {goal.toLowerCase()}<br />
                   {equipment.length > 3 ? 'Full gym' : equipment.join(', ')} \u00b7 {trainingAges.find(t => t.id === trainingAge)?.label || ''} lifter
                 </p>
@@ -503,7 +521,7 @@
             <!-- Education card carousel -->
             <div class="rounded-xl p-4 transition-all" style="background: #0A0A0B; border: 1px solid #2A2A2E; min-height: 180px;">
               <div class="flex items-center justify-between mb-2">
-                <span class="text-xs font-bold uppercase tracking-wider" style="color: #3B82F6;">{eduTips[eduIndex].title}</span>
+                <span class="text-xs font-bold uppercase tracking-wider" style="color: #84CC16;">{eduTips[eduIndex].title}</span>
                 <span class="text-xs" style="color: #4B4B55;">{eduIndex + 1}/{eduTips.length}</span>
               </div>
               <p class="text-xs leading-relaxed mb-3" style="color: #9B9BA4;">{eduTips[eduIndex].body}</p>
@@ -522,7 +540,7 @@
                 {#each eduTips as _, i}
                   <button type="button" onclick={() => eduIndex = i}
                     class="rounded-full transition-all"
-                    style="width: {eduIndex === i ? '16px' : '6px'}; height: 6px; background: {eduIndex === i ? '#3B82F6' : '#2A2A2E'};"
+                    style="width: {eduIndex === i ? '16px' : '6px'}; height: 6px; background: {eduIndex === i ? '#84CC16' : '#2A2A2E'};"
                   ></button>
                 {/each}
               </div>
@@ -536,24 +554,24 @@
       <div class="flex gap-3 mt-5">
         {#if step > 1 && step < 4}
           <button type="button" onclick={prevStep}
-            class="flex-1 rounded-xl py-3.5 text-sm font-semibold" style="background: #2A2A2E; color: #9B9BA4;">
+            class="flex-1 rounded-xl py-3.5 text-base font-semibold" style="background: #2A2A2E; color: #9B9BA4;">
             Back
           </button>
         {/if}
 
         {#if step < 3}
           <button type="button" onclick={nextStep}
-            class="flex-1 rounded-xl py-3.5 text-sm font-bold active:scale-95" style="background: #3B82F6; color: #fff;">
+            class="flex-1 rounded-xl py-3.5 text-base font-bold active:scale-95" style="background: #84CC16; color: #fff;">
             Continue
           </button>
         {:else if step === 3}
           <button type="button" onclick={nextStep}
-            class="flex-1 rounded-xl py-3.5 text-sm font-bold active:scale-95" style="background: #3B82F6; color: #fff;">
+            class="flex-1 rounded-xl py-3.5 text-base font-bold active:scale-95" style="background: #84CC16; color: #fff;">
             Generate My Plan
           </button>
         {:else}
           <button type="submit" disabled={loading}
-            class="flex-1 rounded-xl py-3.5 text-sm font-bold active:scale-95"
+            class="flex-1 rounded-xl py-3.5 text-base font-bold active:scale-95"
             style="background: #22C55E; color: #fff; opacity: {loading ? 0.7 : 1};">
             {loading ? 'Setting up...' : 'Create Account'}
           </button>
@@ -561,8 +579,8 @@
       </div>
     </form>
 
-    <p class="text-center mt-6 text-sm" style="color: #9B9BA4;">
-      Already have an account? <a href="/" class="font-semibold" style="color: #3B82F6;">Log in</a>
+    <p class="text-center mt-6 text-base" style="color: #9B9BA4;">
+      Already have an account? <a href="/" class="font-semibold" style="color: #84CC16;">Log in</a>
     </p>
   </div>
 </div>

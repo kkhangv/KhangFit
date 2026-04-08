@@ -54,7 +54,7 @@
 
   const muscleGroupColors = {
     chest: '#F97316',
-    back: '#3B82F6',
+    back: '#84CC16',
     legs: '#22C55E',
     shoulders: '#8B5CF6',
     arms: '#F59E0B',
@@ -84,7 +84,7 @@
   >
     <!-- Muscle group chip -->
     <span
-      class="text-xs font-bold px-2 py-0.5 rounded-full shrink-0"
+      class="text-sm font-bold px-2 py-0.5 rounded-full shrink-0"
       style="background: {chipColor}22; color: {chipColor}; border: 1px solid {chipColor}44;"
     >
       {exercise.muscleGroup ?? 'Exercise'}
@@ -95,24 +95,24 @@
       <span class="font-semibold truncate" style="color: #F1F1F3;">{exercise.name}</span>
       {#if exercise.supersetWith}
         <span
-          class="text-xs font-bold px-1.5 py-0.5 rounded shrink-0"
+          class="text-sm font-bold px-1.5 py-0.5 rounded shrink-0"
           style="background: #8B5CF622; color: #8B5CF6; border: 1px solid #8B5CF644;"
         >SS</span>
       {/if}
       {#if skipped}
         <span
-          class="text-xs font-bold px-2 py-0.5 rounded-full shrink-0"
+          class="text-sm font-bold px-2 py-0.5 rounded-full shrink-0"
           style="background: #F59E0B22; color: #F59E0B; border: 1px solid #F59E0B44;"
         >Skipped</span>
       {:else if allDone}
         <span
-          class="text-xs font-bold px-2 py-0.5 rounded-full shrink-0"
+          class="text-sm font-bold px-2 py-0.5 rounded-full shrink-0"
           style="background: #22C55E22; color: #22C55E; border: 1px solid #22C55E44;"
         >✓ Complete</span>
       {/if}
       {#if weekIsDeload}
         <span
-          class="text-xs font-bold px-2 py-0.5 rounded-full shrink-0"
+          class="text-sm font-bold px-2 py-0.5 rounded-full shrink-0"
           style="background: #F9731622; color: #F97316;"
         >DELOAD</span>
       {/if}
@@ -141,7 +141,7 @@
           class="rounded-full"
           style="
             width: 8px; height: 8px;
-            background: {s.done ? '#22C55E' : i === currentSetIndex ? '#3B82F6' : '#2A2A2E'};
+            background: {s.done ? '#22C55E' : i === currentSetIndex ? '#84CC16' : '#2A2A2E'};
             transition: background 0.3s ease;
           "
         ></span>
@@ -182,7 +182,7 @@
       {#if exercise.cue}
         <div
           class="rounded-xl p-3"
-          style="background: rgba(59, 130, 246, 0.08); border: 1px solid rgba(59, 130, 246, 0.2);"
+          style="background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.2);"
         >
           <p class="text-sm leading-relaxed" style="color: #93C5FD;">{exercise.cue}</p>
         </div>
@@ -197,7 +197,7 @@
             style="background: #0A0A0B;"
           >
             <span class="flex items-center gap-2">
-              <span class="text-xs font-semibold" style="color: #6B6B75;">Research insight</span>
+              <span class="text-sm font-semibold" style="color: #6B6B75;">Research insight</span>
               <InfoTip
                 text={exercise.scienceTip || exercise.tip}
                 citation={exercise.scienceCitation || null}
@@ -222,7 +222,7 @@
             <div class="px-3 py-2.5" style="background: #0A0A0B; border-top: 1px solid #2A2A2E;">
               <p class="text-sm leading-relaxed" style="color: #9B9BA4;">{exercise.tip || exercise.scienceTip}</p>
               {#if exercise.scienceCitation}
-                <p class="text-xs mt-2" style="color: #6B6B75;">{exercise.scienceCitation}</p>
+                <p class="text-sm mt-2" style="color: #6B6B75;">{exercise.scienceCitation}</p>
               {/if}
             </div>
           {/if}

@@ -35,7 +35,7 @@
 </script>
 
 <div class="flex flex-col gap-2">
-  <p class="text-sm font-semibold text-center" style="color: #9B9BA4;">How hard was that?</p>
+  <p class="text-base font-semibold text-center" style="color: #9B9BA4;">How hard was that?</p>
   <div class="flex flex-col gap-2">
     {#each options as opt (opt.rpe)}
       <button
@@ -46,7 +46,7 @@
       >
         <div>
           <span class="text-base font-bold" style="color: {opt.color};">{opt.label}</span>
-          <span class="text-sm ml-2" style="color: #6B6B75;">{opt.desc}</span>
+          <span class="text-base ml-2" style="color: #6B6B75;">{opt.desc}</span>
         </div>
       </button>
     {/each}

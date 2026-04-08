@@ -55,7 +55,7 @@
 </script>
 
 <svelte:head>
-  <title>LIFT — Profile</title>
+  <title>KhangLift — Profile</title>
 </svelte:head>
 
 <div class="px-4 py-6 pb-24" style="max-width: 600px; margin: 0 auto;">
@@ -64,13 +64,13 @@
   <div class="flex items-center gap-3 mb-8">
     <div
       class="flex items-center justify-center rounded-full font-black text-xl"
-      style="width: 56px; height: 56px; background: #3B82F6; color: #fff; flex-shrink: 0;"
+      style="width: 56px; height: 56px; background: #84CC16; color: #fff; flex-shrink: 0;"
     >
       {name.charAt(0).toUpperCase()}
     </div>
     <div>
       <h1 class="text-2xl font-black" style="color: #F1F1F3;">{name}</h1>
-      <p class="text-sm" style="color: #9B9BA4;">@{username}</p>
+      <p class="text-base" style="color: #9B9BA4;">@{username}</p>
       {#if memberSince}
         <p class="text-xs" style="color: #6B6B75;">Member since {memberSince}</p>
       {/if}
@@ -79,7 +79,7 @@
 
   <!-- Success message -->
   {#if form?.success}
-    <div class="mb-5 rounded-xl px-4 py-3 text-sm font-medium" style="background: rgba(34,197,94,0.1); border: 1px solid rgba(34,197,94,0.3); color: #22C55E;">
+    <div class="mb-5 rounded-xl px-4 py-3 text-base font-medium" style="background: rgba(34,197,94,0.1); border: 1px solid rgba(34,197,94,0.3); color: #22C55E;">
       {form.action === 'updateStats' ? 'Stats updated!' : 'Settings saved!'}
     </div>
   {/if}
@@ -87,11 +87,11 @@
   <!-- Body Stats -->
   <section class="rounded-2xl p-5 mb-5" style="background: #161618; border: 1px solid #2A2A2E;">
     <div class="flex items-center justify-between mb-4">
-      <h2 class="text-sm font-bold" style="color: #F1F1F3;">Body Stats</h2>
+      <h2 class="text-base font-bold" style="color: #F1F1F3;">Body Stats</h2>
       <button
         onclick={() => (editingStats = !editingStats)}
         class="text-xs font-semibold px-3 py-1.5 rounded-lg"
-        style="background: #2A2A2E; color: #3B82F6;"
+        style="background: #2A2A2E; color: #84CC16;"
       >
         {editingStats ? 'Cancel' : 'Edit'}
       </button>
@@ -118,7 +118,9 @@
               bind:value={bw}
               placeholder="175"
               step="0.5"
-              class="w-full rounded-xl px-3 py-2.5 text-sm outline-none"
+              inputmode="decimal"
+              pattern="[0-9]*"
+              class="w-full rounded-xl px-3 py-2.5 text-base outline-none"
               style="background: #0A0A0B; border: 1px solid #2A2A2E; color: #F1F1F3;"
             />
           </div>
@@ -130,7 +132,9 @@
               bind:value={bf}
               placeholder="18"
               step="0.5"
-              class="w-full rounded-xl px-3 py-2.5 text-sm outline-none"
+              inputmode="decimal"
+              pattern="[0-9]*"
+              class="w-full rounded-xl px-3 py-2.5 text-base outline-none"
               style="background: #0A0A0B; border: 1px solid #2A2A2E; color: #F1F1F3;"
             />
           </div>
@@ -142,7 +146,9 @@
               bind:value={bench}
               placeholder="225"
               step="2.5"
-              class="w-full rounded-xl px-3 py-2.5 text-sm outline-none"
+              inputmode="decimal"
+              pattern="[0-9]*"
+              class="w-full rounded-xl px-3 py-2.5 text-base outline-none"
               style="background: #0A0A0B; border: 1px solid #2A2A2E; color: #F1F1F3;"
             />
           </div>
@@ -154,7 +160,9 @@
               bind:value={ohp}
               placeholder="55"
               step="2.5"
-              class="w-full rounded-xl px-3 py-2.5 text-sm outline-none"
+              inputmode="decimal"
+              pattern="[0-9]*"
+              class="w-full rounded-xl px-3 py-2.5 text-base outline-none"
               style="background: #0A0A0B; border: 1px solid #2A2A2E; color: #F1F1F3;"
             />
           </div>
@@ -166,14 +174,14 @@
             bind:value={snotes}
             placeholder="Any notes…"
             rows="2"
-            class="w-full rounded-xl px-3 py-2.5 text-sm outline-none resize-none"
+            class="w-full rounded-xl px-3 py-2.5 text-base outline-none resize-none"
             style="background: #0A0A0B; border: 1px solid #2A2A2E; color: #F1F1F3;"
           ></textarea>
         </div>
         <button
           type="submit"
-          class="w-full py-3 rounded-xl text-sm font-bold"
-          style="background: #3B82F6; color: #fff;"
+          class="w-full py-3 rounded-xl text-base font-bold"
+          style="background: #84CC16; color: #fff;"
         >
           Save Stats
         </button>
@@ -214,7 +222,7 @@
           <p class="text-xs mt-2 italic" style="color: #9B9BA4;">{latestStats.notes}</p>
         {/if}
       {:else}
-        <p class="text-sm" style="color: #9B9BA4;">No stats yet. Tap Edit to add them.</p>
+        <p class="text-base" style="color: #9B9BA4;">No stats yet. Tap Edit to add them.</p>
       {/if}
     {/if}
   </section>
@@ -222,7 +230,7 @@
   <!-- Body weight history chart -->
   {#if chartData.length > 1}
     <section class="rounded-2xl p-5 mb-5" style="background: #161618; border: 1px solid #2A2A2E;">
-      <h2 class="text-sm font-bold mb-4" style="color: #F1F1F3;">Weight History</h2>
+      <h2 class="text-base font-bold mb-4" style="color: #F1F1F3;">Weight History</h2>
       <svg viewBox="0 0 260 70" class="w-full" style="overflow: visible;">
         <!-- Grid lines -->
         {#each [0, 1, 2] as i}
@@ -232,7 +240,7 @@
         <polyline
           points={polyPoints}
           fill="none"
-          stroke="#3B82F6"
+          stroke="#84CC16"
           stroke-width="2"
           stroke-linecap="round"
           stroke-linejoin="round"
@@ -243,7 +251,7 @@
             cx={(i / (chartData.length - 1)) * 260}
             cy={chartY(d.w)}
             r="3"
-            fill="#3B82F6"
+            fill="#84CC16"
           />
         {/each}
       </svg>
@@ -257,11 +265,11 @@
   <!-- Program settings -->
   <section class="rounded-2xl p-5 mb-5" style="background: #161618; border: 1px solid #2A2A2E;">
     <div class="flex items-center justify-between mb-4">
-      <h2 class="text-sm font-bold" style="color: #F1F1F3;">Program Settings</h2>
+      <h2 class="text-base font-bold" style="color: #F1F1F3;">Program Settings</h2>
       <button
         onclick={() => (editingConfig = !editingConfig)}
         class="text-xs font-semibold px-3 py-1.5 rounded-lg"
-        style="background: #2A2A2E; color: #3B82F6;"
+        style="background: #2A2A2E; color: #84CC16;"
       >
         {editingConfig ? 'Cancel' : 'Edit'}
       </button>
@@ -285,7 +293,7 @@
             name="startDate"
             type="date"
             bind:value={startDate}
-            class="w-full rounded-xl px-3 py-2.5 text-sm outline-none"
+            class="w-full rounded-xl px-3 py-2.5 text-base outline-none"
             style="background: #0A0A0B; border: 1px solid #2A2A2E; color: #F1F1F3; color-scheme: dark;"
           />
         </div>
@@ -297,7 +305,9 @@
             bind:value={weekOverride}
             placeholder="1–5 (blank for auto)"
             min="1" max="5"
-            class="w-full rounded-xl px-3 py-2.5 text-sm outline-none"
+            inputmode="numeric"
+            pattern="[0-9]*"
+            class="w-full rounded-xl px-3 py-2.5 text-base outline-none"
             style="background: #0A0A0B; border: 1px solid #2A2A2E; color: #F1F1F3;"
           />
         </div>
@@ -311,19 +321,19 @@
             />
             <div
               class="w-10 h-6 rounded-full transition-all"
-              style="background: {hasPeloton ? '#3B82F6' : '#2A2A2E'};"
+              style="background: {hasPeloton ? '#84CC16' : '#2A2A2E'};"
             ></div>
             <div
               class="absolute top-1 left-1 w-4 h-4 rounded-full transition-all"
               style="background: #fff; transform: translateX({hasPeloton ? '16px' : '0'});"
             ></div>
           </div>
-          <span class="text-sm" style="color: #F1F1F3;">Include Peloton reminders</span>
+          <span class="text-base" style="color: #F1F1F3;">Include Peloton reminders</span>
         </label>
         <button
           type="submit"
-          class="w-full py-3 rounded-xl text-sm font-bold"
-          style="background: #3B82F6; color: #fff;"
+          class="w-full py-3 rounded-xl text-base font-bold"
+          style="background: #84CC16; color: #fff;"
         >
           Save Settings
         </button>
@@ -331,18 +341,18 @@
     {:else}
       <div class="flex flex-col gap-2">
         <div class="flex justify-between">
-          <span class="text-sm" style="color: #9B9BA4;">Start date</span>
-          <span class="text-sm font-semibold" style="color: #F1F1F3;">{formatDate(config?.startDate)}</span>
+          <span class="text-base" style="color: #9B9BA4;">Start date</span>
+          <span class="text-base font-semibold" style="color: #F1F1F3;">{formatDate(config?.startDate)}</span>
         </div>
         <div class="flex justify-between">
-          <span class="text-sm" style="color: #9B9BA4;">Week control</span>
-          <span class="text-sm font-semibold" style="color: {config?.weekOverride ? '#F97316' : '#22C55E'};">
+          <span class="text-base" style="color: #9B9BA4;">Week control</span>
+          <span class="text-base font-semibold" style="color: {config?.weekOverride ? '#F97316' : '#22C55E'};">
             {config?.weekOverride ? `Manual (Week ${config.weekOverride})` : 'Auto'}
           </span>
         </div>
         <div class="flex justify-between">
-          <span class="text-sm" style="color: #9B9BA4;">Peloton</span>
-          <span class="text-sm font-semibold" style="color: {config?.hasPeloton ? '#3B82F6' : '#9B9BA4'};">
+          <span class="text-base" style="color: #9B9BA4;">Peloton</span>
+          <span class="text-base font-semibold" style="color: {config?.hasPeloton ? '#84CC16' : '#9B9BA4'};">
             {config?.hasPeloton ? 'Enabled' : 'Off'}
           </span>
         </div>
@@ -355,7 +365,7 @@
     <form method="POST" action="?/logout" use:enhance>
       <button
         type="submit"
-        class="w-full py-3 rounded-xl text-sm font-bold transition-all duration-200 active:scale-95"
+        class="w-full py-3 rounded-xl text-base font-bold transition-all duration-200 active:scale-95"
         style="background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.3); color: #F87171;"
       >
         Log Out
@@ -376,7 +386,7 @@
     </svg>
     Dashboard
   </a>
-  <a href="/profile" class="flex flex-col items-center gap-1 text-xs font-medium" style="color: #3B82F6;">
+  <a href="/profile" class="flex flex-col items-center gap-1 text-xs font-medium" style="color: #84CC16;">
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
       <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
     </svg>

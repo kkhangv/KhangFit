@@ -1,15 +1,15 @@
 <script>
   let { seconds = 90, onComplete, inline = false, nextLabel = '' } = $props();
 
-  let remaining = $state(seconds);
+  let remaining = $state(0);
   let done = $state(false);
   let pulsing = $state(false);
 
-  const RADIUS = inline ? 50 : 36;
-  const SIZE = inline ? 120 : 52;
-  const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
+  const RADIUS = $derived(inline ? 50 : 36);
+  const SIZE = $derived(inline ? 120 : 52);
+  const CIRCUMFERENCE = $derived(2 * Math.PI * RADIUS);
 
-  let progress = $derived(remaining / seconds);
+  let progress = $derived(seconds > 0 ? remaining / seconds : 0);
   let dashOffset = $derived(CIRCUMFERENCE * (1 - progress));
 
   let minutes = $derived(Math.floor(remaining / 60));

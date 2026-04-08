@@ -8,11 +8,14 @@
   let { data } = $props();
   let { dayData, dayNum, weekInfo, prevWorkout, doneToday, today } = $derived(data);
 
-  // ── State ──────────────────────────────────────────────────────────────────
+  // Snapshot exercises at mount — intentionally non-reactive. User input state
+  // must not reset if data changes after the session starts.
+  // svelte-ignore state_referenced_locally
+  const _initExercises = dayData?.exercises ?? [];
 
   let setStates = $state(
     Object.fromEntries(
-      (dayData?.exercises ?? []).map((ex, ei) => [
+      _initExercises.map((ex, ei) => [
         ei,
         Object.fromEntries(
           Array.from({ length: ex.sets || 3 }, (_, si) => [
@@ -38,7 +41,7 @@
   let startTime = $state(Date.now());
 
   let exerciseFeedback = $state(
-    Object.fromEntries((dayData?.exercises ?? []).map((_, i) => [i, 'good']))
+    Object.fromEntries(_initExercises.map((_, i) => [i, 'good']))
   );
 
   let sessionDifficulty = $state('just_right');

@@ -94,15 +94,15 @@
   <!-- Suggested adjustments -->
   {#if adjustments.length > 0}
     <div class="flex flex-col gap-2">
-      <h3 class="text-sm font-semibold uppercase tracking-wider" style="color: #3B82F6;">Next Session Suggestions</h3>
+      <h3 class="text-base font-semibold uppercase tracking-wider" style="color: #10B981;">Next Session Suggestions</h3>
       <div class="flex flex-col gap-1.5">
         {#each adjustments as adj}
           <div
             class="flex items-center gap-3 rounded-xl px-4 py-3"
-            style="background: rgba(59, 130, 246, 0.08); border: 1px solid rgba(59, 130, 246, 0.2);"
+            style="background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.2);"
           >
             <span class="text-sm font-medium flex-1" style="color: #F1F1F3;">{adj.exercise}</span>
-            <span class="text-sm font-semibold" style="color: #3B82F6;">{adj.recommendation}</span>
+            <span class="text-base font-semibold" style="color: #10B981;">{adj.recommendation}</span>
           </div>
         {/each}
       </div>
@@ -115,7 +115,7 @@
       class="rounded-2xl px-4 py-4 flex flex-col gap-1"
       style="background: #161618; border: 1px solid #2A2A2E;"
     >
-      <span class="text-xs font-medium uppercase tracking-wider" style="color: #6B6B75;">Up Next</span>
+      <span class="text-sm font-medium uppercase tracking-wider" style="color: #6B6B75;">Up Next</span>
       <span class="text-base font-bold" style="color: #F1F1F3;">{nextDay.name}</span>
       {#if nextDay.subtitle}
         <span class="text-sm" style="color: #9B9BA4;">{nextDay.subtitle}</span>
@@ -127,7 +127,7 @@
   <button
     onclick={onContinue}
     class="w-full rounded-xl py-4 text-base font-bold transition-all active:scale-98"
-    style="background: #3B82F6; color: #fff; min-height: 56px;"
+    style="background: #10B981; color: #fff; min-height: 56px;"
   >
     Back to Dashboard
   </button>

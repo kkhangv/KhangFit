@@ -24,7 +24,7 @@
 
   const techniqueColors = {
     'drop set': { bg: '#F97316', text: '#0A0A0B' },
-    'rest-pause': { bg: '#3B82F6', text: '#F1F1F3' },
+    'rest-pause': { bg: '#10B981', text: '#F1F1F3' },
     superset: { bg: '#8B5CF6', text: '#F1F1F3' }
   };
 
@@ -55,7 +55,7 @@
     done
       ? 'rgba(34, 197, 94, 0.08)'
       : isActive
-      ? 'rgba(59, 130, 246, 0.07)'
+      ? 'rgba(16, 185, 129, 0.07)'
       : 'transparent'
   );
 
@@ -63,7 +63,7 @@
     done
       ? '1px solid rgba(34, 197, 94, 0.3)'
       : isActive
-      ? '1px solid rgba(59, 130, 246, 0.25)'
+      ? '1px solid rgba(16, 185, 129, 0.25)'
       : '1px solid transparent'
   );
 </script>
@@ -76,7 +76,7 @@
   <div class="flex items-center gap-3">
     <!-- Set number badge -->
     <div
-      class="flex items-center justify-center rounded-full text-xs font-bold shrink-0"
+      class="flex items-center justify-center rounded-full text-sm font-bold shrink-0"
       style="width: 28px; height: 28px; background: {done ? '#22C55E' : '#2A2A2E'}; color: {done ? '#0A0A0B' : '#9B9BA4'};"
     >
       {done ? '✓' : set.setNum}
@@ -89,7 +89,7 @@
           {isBW() ? 'BW' : weight} × {reps}
         </span>
         {#if rpe}
-          <span class="text-xs px-2 py-0.5 rounded-full" style="background: #2A2A2E; color: #9B9BA4;">
+          <span class="text-sm px-2 py-0.5 rounded-full" style="background: #2A2A2E; color: #9B9BA4;">
             RPE {rpe}
           </span>
         {/if}
@@ -107,13 +107,13 @@
         <!-- Weight stepper -->
         <div class="flex flex-col gap-0.5 flex-1">
           {#if lastWeekActual}
-            <span class="text-xs" style="color: #6B6B75;">
+            <span class="text-sm" style="color: #6B6B75;">
               Last: {lastWeekActual.weight ?? 'BW'}×{lastWeekActual.reps}
             </span>
           {/if}
           {#if recommendation}
             <span class="flex items-center gap-1">
-              <span class="text-xs font-medium" style="color: #3B82F6;">{recommendation}</span>
+              <span class="text-sm font-medium" style="color: #10B981;">{recommendation}</span>
               <InfoTip
                 text="Based on double progression: when you hit the top of your rep range on all working sets, add the smallest weight increment."
                 citation="Schoenfeld et al., 2017; NSCA Guidelines"
@@ -170,7 +170,7 @@
       <button
         onclick={handleComplete}
         class="flex items-center justify-center rounded-xl shrink-0 transition-all duration-200 active:scale-95"
-        style="width: 48px; height: 48px; background: {isActive ? '#3B82F6' : '#2A2A2E'}; color: {isActive ? '#fff' : '#6B6B75'};"
+        style="width: 48px; height: 48px; background: {isActive ? '#10B981' : '#2A2A2E'}; color: {isActive ? '#fff' : '#6B6B75'};"
         aria-label="Mark set complete"
       >
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -183,14 +183,14 @@
   <!-- RPE selector (only when not done) -->
   {#if !done}
     <div class="flex items-center gap-1.5 pl-9">
-      <span class="text-xs mr-1" style="color: #6B6B75;">RPE</span>
+      <span class="text-sm mr-1" style="color: #6B6B75;">RPE</span>
       {#each rpeOptions as r}
         <button
           onclick={() => (rpe = rpe === r ? null : r)}
-          class="rounded-full text-xs font-semibold transition-all duration-150"
+          class="rounded-full text-sm font-semibold transition-all duration-150"
           style="
             min-width: 32px; height: 32px; padding: 0 6px;
-            background: {rpe === r ? '#3B82F6' : '#2A2A2E'};
+            background: {rpe === r ? '#10B981' : '#2A2A2E'};
             color: {rpe === r ? '#fff' : '#9B9BA4'};
           "
         >
@@ -206,20 +206,20 @@
       {#each (Array.isArray(set.technique) ? set.technique : [set.technique]) as t}
         {@const tc = techniqueColors[t] ?? { bg: '#2A2A2E', text: '#9B9BA4' }}
         <span
-          class="text-xs font-semibold px-2 py-0.5 rounded-full"
+          class="text-sm font-semibold px-2 py-0.5 rounded-full"
           style="background: {tc.bg}; color: {tc.text};"
         >
           {t}
         </span>
       {/each}
       {#if set.techniqueNote}
-        <span class="text-xs" style="color: #6B6B75;">{set.techniqueNote}</span>
+        <span class="text-sm" style="color: #6B6B75;">{set.techniqueNote}</span>
       {/if}
     </div>
   {/if}
 
   <!-- Notes -->
   {#if set.weightNote}
-    <p class="text-xs pl-9" style="color: #6B6B75;">{set.weightNote}</p>
+    <p class="text-sm pl-9" style="color: #6B6B75;">{set.weightNote}</p>
   {/if}
 </div>

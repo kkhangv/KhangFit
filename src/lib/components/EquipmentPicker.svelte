@@ -43,9 +43,9 @@
         onclick={() => selectPreset(preset)}
         class="px-4 py-2.5 rounded-xl text-sm font-semibold transition-all"
         style="
-          background: {activePreset === preset.label ? '#3B82F6' : '#1E1E22'};
+          background: {activePreset === preset.label ? '#10B981' : '#1E1E22'};
           color: {activePreset === preset.label ? '#FFFFFF' : '#9B9BA4'};
-          border: 1px solid {activePreset === preset.label ? '#3B82F6' : '#2A2A2E'};
+          border: 1px solid {activePreset === preset.label ? '#10B981' : '#2A2A2E'};
         "
       >
         {preset.label}
@@ -56,9 +56,9 @@
       onclick={toggleCustom}
       class="px-4 py-2.5 rounded-xl text-sm font-semibold transition-all"
       style="
-        background: {activePreset === 'Custom' ? '#3B82F6' : '#1E1E22'};
+        background: {activePreset === 'Custom' ? '#10B981' : '#1E1E22'};
         color: {activePreset === 'Custom' ? '#FFFFFF' : '#9B9BA4'};
-        border: 1px solid {activePreset === 'Custom' ? '#3B82F6' : '#2A2A2E'};
+        border: 1px solid {activePreset === 'Custom' ? '#10B981' : '#2A2A2E'};
       "
     >
       Custom...
@@ -73,9 +73,9 @@
           onclick={() => toggleEquipment(item)}
           class="px-3 py-2 rounded-lg text-sm text-left transition-all"
           style="
-            background: {value.includes(item) ? 'rgba(59, 130, 246, 0.15)' : '#1E1E22'};
-            color: {value.includes(item) ? '#3B82F6' : '#9B9BA4'};
-            border: 1px solid {value.includes(item) ? '#3B82F6' : '#2A2A2E'};
+            background: {value.includes(item) ? 'rgba(16, 185, 129, 0.15)' : '#1E1E22'};
+            color: {value.includes(item) ? '#10B981' : '#9B9BA4'};
+            border: 1px solid {value.includes(item) ? '#10B981' : '#2A2A2E'};
           "
         >
           {value.includes(item) ? '✓ ' : ''}{item}
@@ -85,7 +85,7 @@
   {/if}
 
   {#if value.length > 0 && !showCustom}
-    <p class="text-xs" style="color: #6B6B75;">
+    <p class="text-sm" style="color: #6B6B75;">
       Includes: {value.join(', ')}
     </p>
   {/if}

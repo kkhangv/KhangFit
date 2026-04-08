@@ -4,9 +4,9 @@
     {
       "name": "khangfit-dev",
       "runtimeExecutable": "bash",
-      "runtimeArgs": ["-c", "export NVM_DIR=\"$HOME/.nvm\" && source \"$NVM_DIR/nvm.sh\" && nvm use 20 && npm run dev -- --port 5111"],
-      "port": 5111,
-      "url": "http://localhost:5111"
+      "runtimeArgs": ["-c", "export NVM_DIR=\"$HOME/.nvm\" && source \"$NVM_DIR/nvm.sh\" && nvm use 20 && npm run dev -- --port 5112"],
+      "port": 5112,
+      "url": "http://localhost:5112"
     }
   ]
 }

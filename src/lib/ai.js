@@ -133,7 +133,8 @@ Core: Plank, hollow body hold, leg raise, mountain climber, dead bug, bird-dog
 
 7. Honor the user's session duration constraint. If time is limited, use more drop sets and supersets to compress volume.
 
-8. Include the user's free-form preferences verbatim — these override defaults when they conflict.`;
+8. Include the user's free-form preferences verbatim — these override defaults when they conflict.
+9. Keep all text fields short — plain, direct language. No filler words.`;
 
 // ─── Plan JSON Schema for Structured Outputs ────────────────────────────────
 
@@ -147,15 +148,15 @@ const EXERCISE_SCHEMA = {
     reps: { type: 'integer', description: 'Exact rep target (integer, NOT a range)' },
     rpe: { type: 'number', description: 'Target RPE (6-10)' },
     rest: { type: 'integer', description: 'Rest between sets in seconds' },
-    cue: { type: 'string', description: 'Form cue for the lifter' },
-    tip: { type: 'string', description: 'Research-backed tip or context' },
+    cue: { type: 'string', description: 'Form cue — 1 short sentence' },
+    tip: { type: 'string', description: 'Key tip — 1 short sentence' },
     technique: {
       anyOf: [{ type: 'string' }, { type: 'null' }],
       description: 'Advanced technique on final set: "drop-set", "rest-pause", "superset", or null'
     },
     techniqueNote: {
       anyOf: [{ type: 'string' }, { type: 'null' }],
-      description: 'Details for the technique (e.g., "Reduce weight 25%, continue to failure")'
+      description: 'Brief technique instruction, max 10 words'
     },
     supersetWith: {
       anyOf: [{ type: 'string' }, { type: 'null' }],
@@ -244,7 +245,7 @@ const WEEK_OVERVIEW_SCHEMA = {
     weekNumber: { type: 'integer', description: 'Week number in the mesocycle (1-based)' },
     theme: { type: 'string', description: 'Week theme (e.g., "Accumulation", "Intensification")' },
     isDeload: { type: 'boolean', description: 'Whether this is planned as a deload week' },
-    focusNote: { type: 'string', description: 'What changes this week vs previous (e.g., "+1 RPE, rotate exercises")' },
+    focusNote: { type: 'string', description: 'One sentence: what changes this week vs previous' },
     days: {
       type: 'array',
       items: DAY_OVERVIEW_SCHEMA,
@@ -259,7 +260,7 @@ export const SKELETON_SCHEMA = {
   type: 'object',
   properties: {
     programName: { type: 'string', description: 'Name of the program' },
-    programDescription: { type: 'string', description: 'Brief description of the program approach' },
+    programDescription: { type: 'string', description: '2–3 sentence overview of the program approach' },
     totalWeeks: { type: 'integer', description: 'Planned weeks in the mesocycle (typically 4-7, deload is autoregulated)' },
     daysPerWeek: { type: 'integer', description: 'Training days per week' },
     weekOverviews: {

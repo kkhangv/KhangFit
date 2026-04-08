@@ -52,7 +52,7 @@
 {#if inline}
   <!-- Inline mode: centered in the page flow -->
   <div class="flex flex-col items-center gap-4 py-6">
-    <p class="text-sm font-semibold" style="color: #9B9BA4;">
+    <p class="text-base font-semibold" style="color: #9B9BA4;">
       {done ? 'Rest complete!' : 'Take a breather'}
     </p>
 
@@ -75,12 +75,12 @@
     </div>
 
     {#if nextLabel}
-      <p class="text-xs" style="color: #6B6B75;">Next: {nextLabel}</p>
+      <p class="text-sm" style="color: #6B6B75;">Next: {nextLabel}</p>
     {/if}
 
     {#if !done}
       <button onclick={skip}
-        class="px-6 py-3 rounded-xl text-sm font-bold"
+        class="px-6 py-3 rounded-xl text-base font-bold"
         style="background: #2A2A2E; color: #9B9BA4;">
         Skip Rest
       </button>
@@ -104,16 +104,16 @@
           style="transition: stroke-dashoffset 0.9s linear, stroke 0.3s ease;"
         />
       </svg>
-      <span class="absolute text-sm font-bold tabular-nums" style="color: {done ? '#22C55E' : '#F97316'};">
+      <span class="absolute text-base font-bold tabular-nums" style="color: {done ? '#22C55E' : '#F97316'};">
         {timeLabel}
       </span>
     </div>
     <div class="flex flex-col leading-tight">
-      <span class="text-xs font-medium" style="color: #9B9BA4;">{done ? 'Rest done!' : 'Resting'}</span>
-      <span class="text-sm font-semibold" style="color: #F1F1F3;">{done ? 'Resume when ready' : 'Take a breather'}</span>
+      <span class="text-sm font-medium" style="color: #9B9BA4;">{done ? 'Rest done!' : 'Resting'}</span>
+      <span class="text-base font-semibold" style="color: #F1F1F3;">{done ? 'Resume when ready' : 'Take a breather'}</span>
     </div>
     {#if !done}
-      <button onclick={skip} class="rounded-full px-3 py-1 text-xs font-semibold"
+      <button onclick={skip} class="rounded-full px-3 py-1 text-sm font-semibold"
         style="background: #2A2A2E; color: #9B9BA4; min-height: 32px;">Skip</button>
     {/if}
   </div>

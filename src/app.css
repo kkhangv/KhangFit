@@ -1,1 +1,15 @@
 @import 'tailwindcss';
+
+/* Prevent iOS zoom on input focus (inputs smaller than 16px trigger zoom) */
+input[type="text"],
+input[type="number"],
+input[type="password"],
+input[type="email"],
+input[type="search"] {
+  font-size: max(16px, 1em);
+}
+
+/* Prevent 300ms tap delay and double-tap zoom on interactive elements */
+button, a, input, select, textarea {
+  touch-action: manipulation;
+}

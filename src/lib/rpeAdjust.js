@@ -2,6 +2,24 @@
 // Pure deterministic rules — no AI calls.
 
 /**
+ * Detect whether an exercise should use cardio tracking (duration) vs strength (weight/reps).
+ */
+export function getExerciseInputType(exercise) {
+  if (!exercise) return { type: 'strength', metric: 'weight', unit: 'lbs', step: 2.5 };
+
+  const equip = (exercise.equipment || '').toLowerCase();
+  const name = (exercise.name || '').toLowerCase();
+  const isCardioEquip = ['peloton', 'bike', 'cycle', 'treadmill', 'rower', 'rowing', 'elliptical', 'stairmaster'].some(k => equip.includes(k) || name.includes(k));
+
+  // Only pure cardio equipment gets duration tracking.
+  // Exercises with reps > 0 are always strength (even if marked isCardio/isMobility).
+  if (isCardioEquip || (exercise.isCardio && (!exercise.reps || exercise.reps === 0))) {
+    return { type: 'cardio', metric: 'duration', unit: 'min', step: 1 };
+  }
+  return { type: 'strength', metric: 'weight', unit: 'lbs', step: 2.5 };
+}
+
+/**
  * Suggest a weight adjustment for the next set based on reported RPE.
  *
  * @param {number} currentWeight - Weight used for the completed set
@@ -9,9 +27,14 @@
  * @param {number} targetRPE - Target RPE from the plan
  * @param {number} targetReps - Target reps from the plan
  * @param {number} actualReps - Actual reps completed
+ * @param {boolean} isCardio - Whether this is a cardio exercise
  * @returns {{ suggestedWeight: number, message: string, adjustment: string }}
  */
-export function getWeightSuggestion(currentWeight, reportedRPE, targetRPE, targetReps, actualReps) {
+export function getWeightSuggestion(currentWeight, reportedRPE, targetRPE, targetReps, actualReps, isCardio = false) {
+  // Cardio exercises don't get weight suggestions
+  if (isCardio) {
+    return { suggestedWeight: currentWeight, message: 'Good effort!', adjustment: 'maintain' };
+  }
   const diff = reportedRPE - targetRPE;
   const repShortfall = targetReps - actualReps;
 
